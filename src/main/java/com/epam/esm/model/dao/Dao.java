@@ -1,7 +1,6 @@
 package com.epam.esm.model.dao;
 
 import com.epam.esm.exception.DaoException;
-import com.epam.esm.exception.DaoConstraintViolationException;
 
 import java.sql.Connection;
 import java.util.List;
@@ -29,20 +28,18 @@ public interface Dao<T> {
      *
      * @param t - Object
      * @return true on successful creation
-     * @throws DaoException                    database access error or other errors
-     * @throws DaoConstraintViolationException duplication data
+     * @throws DaoException database access error or other errors
      */
-    Long create(T t) throws DaoConstraintViolationException, DaoException;
+    Long create(T t) throws DaoException;
 
     /**
      * Update Object
      *
      * @param t - Object
      * @return true on successful change
-     * @throws DaoException                    database access error or other errors
-     * @throws DaoConstraintViolationException duplication data
+     * @throws DaoException database access error or other errors
      */
-    boolean update(T t) throws DaoConstraintViolationException, DaoException;
+    boolean update(T t) throws DaoException;
 
     /**
      * Delete Object

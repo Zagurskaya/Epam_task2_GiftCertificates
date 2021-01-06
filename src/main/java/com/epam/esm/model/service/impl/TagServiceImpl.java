@@ -1,8 +1,6 @@
 package com.epam.esm.model.service.impl;
 
 import com.epam.esm.entity.Tag;
-import com.epam.esm.exception.CommandException;
-import com.epam.esm.exception.DaoConstraintViolationException;
 import com.epam.esm.exception.DaoException;
 import com.epam.esm.exception.ServiceException;
 import com.epam.esm.model.dao.TagDao;
@@ -36,7 +34,7 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public boolean create(Tag tag) throws ServiceException, CommandException {
+    public boolean create(Tag tag) throws ServiceException {
         TagDao tagDao = new TagDaoImpl();
         EntityTransaction transaction = new EntityTransaction();
         transaction.initSingleQuery(tagDao);
@@ -45,12 +43,9 @@ public class TagServiceImpl implements TagService {
                 return tagDao.create(tag) != 0L;
             } else {
                 logger.log(Level.ERROR, "Duplicate data tag's login ");
-                throw new CommandException("Duplicate data tag's login ");
+                throw new ServiceException("Duplicate data tag's login ");
             }
-        } catch (DaoConstraintViolationException e) {
-            logger.log(Level.ERROR, "Duplicate data tag ", e);
-            throw new CommandException("Duplicate data tag ", e);
-        } catch (DaoException e) {
+        }  catch (DaoException e) {
             logger.log(Level.ERROR, "Database exception during createCheckEn tag ", e);
             throw new ServiceException("Database exception during createCheckEn tag ", e);
         } finally {
@@ -59,15 +54,12 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public boolean update(Tag tag) throws ServiceException, CommandException {
+    public boolean update(Tag tag) throws ServiceException {
         TagDao tagDao = new TagDaoImpl();
         EntityTransaction transaction = new EntityTransaction();
         transaction.initSingleQuery(tagDao);
         try {
             return tagDao.update(tag);
-        } catch (DaoConstraintViolationException e) {
-            logger.log(Level.ERROR, "Duplicate data tag ", e);
-            throw new CommandException("Duplicate data tag ", e);
         } catch (DaoException e) {
             logger.log(Level.ERROR, "Database exception during update tag ", e);
             throw new ServiceException("Database exception during update tag ", e);

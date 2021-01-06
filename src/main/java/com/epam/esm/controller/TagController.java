@@ -1,7 +1,6 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.entity.Tag;
-import com.epam.esm.exception.CommandException;
 import com.epam.esm.exception.ServiceException;
 import com.epam.esm.model.service.TagService;
 import com.epam.esm.model.service.impl.TagServiceImpl;
@@ -26,13 +25,13 @@ public class TagController {
     }
 
     @PostMapping(value = "/tag")
-    public ResponseEntity createTag(@RequestBody Tag tag) throws ServiceException, CommandException {
+    public ResponseEntity createTag(@RequestBody Tag tag) throws ServiceException {
         tagService.create(tag);
         return new ResponseEntity(HttpStatus.OK);
     }
 
     @PutMapping(value = "/tag/{id}")
-    public ResponseEntity updateTag(@PathVariable("id") long id, @RequestBody Tag updateTag) throws ServiceException, CommandException {
+    public ResponseEntity updateTag(@PathVariable("id") long id, @RequestBody Tag updateTag) throws ServiceException {
         Tag tag = tagService.findById(id);
         if (tag == null) {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
@@ -43,7 +42,7 @@ public class TagController {
     }
 
     @DeleteMapping(value = "/tag/{id}")
-    public ResponseEntity deleteTag(@PathVariable("id") long id) throws ServiceException, CommandException {
+    public ResponseEntity deleteTag(@PathVariable("id") long id) throws ServiceException {
         Tag tag = tagService.findById(id);
         if (tag == null) {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);

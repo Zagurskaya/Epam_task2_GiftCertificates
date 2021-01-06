@@ -3,6 +3,7 @@ package com.epam.esm.model.dao;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.DaoException;
 
+//public interface TagDao extends Dao<Tag> {
 public interface TagDao extends Dao<Tag> {
 
     /**

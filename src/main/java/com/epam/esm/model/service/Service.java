@@ -1,6 +1,5 @@
 package com.epam.esm.model.service;
 
-import com.epam.esm.exception.CommandException;
 import com.epam.esm.exception.ServiceException;
 
 import java.util.List;
@@ -28,9 +27,8 @@ public interface Service<T> {
      * @param t - Object
      * @return true on successful createCheckEn
      * @throws ServiceException error during execution of logical blocks and actions
-     * @throws CommandException volition error
      */
-    boolean create(T t) throws ServiceException, CommandException;
+    boolean create(T t) throws ServiceException;
 
     /**
      * Update Object
@@ -39,7 +37,7 @@ public interface Service<T> {
      * @return true on successful update
      * @throws ServiceException error during execution of logical blocks and actions
      */
-    boolean update(T t) throws ServiceException, CommandException;
+    boolean update(T t) throws ServiceException;
 
     /**
      * Delete Object

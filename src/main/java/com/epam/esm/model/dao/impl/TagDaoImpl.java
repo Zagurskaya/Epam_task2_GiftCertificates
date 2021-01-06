@@ -1,7 +1,6 @@
 package com.epam.esm.model.dao.impl;
 
 import com.epam.esm.entity.Tag;
-import com.epam.esm.exception.DaoConstraintViolationException;
 import com.epam.esm.exception.DaoException;
 import com.epam.esm.model.dao.AbstractDao;
 import com.epam.esm.model.dao.TagDao;
@@ -46,7 +45,7 @@ public class TagDaoImpl extends AbstractDao implements TagDao {
     }
 
     @Override
-    public Long create(Tag tag) throws DaoException, DaoConstraintViolationException {
+    public Long create(Tag tag) throws DaoException {
         int result;
         try {
             try (PreparedStatement preparedStatement = connection.prepareStatement(SQL_INSERT_TAG, Statement.RETURN_GENERATED_KEYS)) {
@@ -60,7 +59,7 @@ public class TagDaoImpl extends AbstractDao implements TagDao {
                 }
             }
         } catch (SQLIntegrityConstraintViolationException e) {
-            throw new DaoConstraintViolationException("Duplicate data tag", e);
+            throw new DaoException("Duplicate data tag", e);
         } catch (SQLException e) {
             logger.log(Level.ERROR, "Database exception during createCheckEn tag", e);
             throw new DaoException("Database exception during createCheckEn tag", e);
@@ -69,7 +68,7 @@ public class TagDaoImpl extends AbstractDao implements TagDao {
     }
     
     @Override
-    public boolean update(Tag tag) throws DaoException, DaoConstraintViolationException {
+    public boolean update(Tag tag) throws DaoException {
         int result;
         try {
             try (PreparedStatement preparedStatement = connection.prepareStatement(SQL_UPDATE_TAG)) {
@@ -78,7 +77,7 @@ public class TagDaoImpl extends AbstractDao implements TagDao {
                 result = preparedStatement.executeUpdate();
             }
         } catch (SQLIntegrityConstraintViolationException e) {
-            throw new DaoConstraintViolationException("Duplicate data tag", e);
+            throw new DaoException("Duplicate data tag", e);
         } catch (SQLException e) {
             logger.log(Level.ERROR, "Database exception during update tag", e);
             throw new DaoException("Database exception during update tag ", e);
