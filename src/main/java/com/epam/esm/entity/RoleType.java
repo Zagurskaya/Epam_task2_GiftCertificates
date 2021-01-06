@@ -29,7 +29,7 @@ public enum RoleType {
     }
 
     /**
-     * Get field value {@link RoleType#value}
+     * Get field value {@link com.epam.esm.entity.RoleType#value}
      *
      * @return value
      */

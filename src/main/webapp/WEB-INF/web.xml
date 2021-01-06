@@ -4,78 +4,60 @@
 		 http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
          version="3.1">
     <display-name>Сервлеты zagurskaya</display-name>
-    <context-param>
-        <param-name>mail</param-name>
-        <param-value>/WEB-INF/classes/installation.properties</param-value>
-    </context-param>
-    <filter>
-        <filter-name>PageRedirectSecurityFilter</filter-name>
-        <filter-class>com.epam.esm.controller.filter.PageRedirectSecurityFilter</filter-class>
-    </filter>
-    <filter-mapping>
-        <filter-name>PageRedirectSecurityFilter</filter-name>
-        <url-pattern>/jsp/*</url-pattern>
-    </filter-mapping>
-    <filter>
-        <filter-name>ExceptionHandlerFilter</filter-name>
-        <filter-class>com.epam.esm.controller.filter.ExceptionHandlerFilter</filter-class>
-    </filter>
-    <filter-mapping>
-        <filter-name>ExceptionHandlerFilter</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
-    <filter>
-        <filter-name>PermissionFilter</filter-name>
-        <filter-class>com.epam.esm.controller.filter.PermissionFilter</filter-class>
-    </filter>
-    <filter-mapping>
-        <filter-name>PermissionFilter</filter-name>
-        <url-pattern>/do</url-pattern>
-    </filter-mapping>
-    <servlet>
-        <servlet-name>UploadRateNBServlet</servlet-name>
-        <servlet-class>com.epam.esm.controller.servlet.UploadRateNB</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>UploadRateNBServlet</servlet-name>
-        <url-pattern>/upload_rate_nb</url-pattern>
-    </servlet-mapping>
-    <servlet>
-        <servlet-name>UploadRateCBServlet</servlet-name>
-        <servlet-class>com.epam.esm.controller.servlet.UploadRateCB</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>UploadRateCBServlet</servlet-name>
-        <url-pattern>/upload_rate_cb</url-pattern>
-    </servlet-mapping>
-    <servlet>
-        <servlet-name>FrontController</servlet-name>
-        <servlet-class>com.epam.esm.controller.FrontController</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>FrontController</servlet-name>
-        <url-pattern>/do</url-pattern>
-    </servlet-mapping>
+<!--    <context-param>-->
+<!--        <param-name>mail</param-name>-->
+<!--        <param-value>/WEB-INF/classes/installation.properties</param-value>-->
+<!--    </context-param>-->
+<!--    <filter>-->
+<!--        <filter-name>PageRedirectSecurityFilter</filter-name>-->
+<!--        <filter-class>com.epam.esm.controller.filter.PageRedirectSecurityFilter</filter-class>-->
+<!--    </filter>-->
+<!--    <filter-mapping>-->
+<!--        <filter-name>PageRedirectSecurityFilter</filter-name>-->
+<!--        <url-pattern>/jsp/*</url-pattern>-->
+<!--    </filter-mapping>-->
+<!--    <filter>-->
+<!--        <filter-name>ExceptionHandlerFilter</filter-name>-->
+<!--        <filter-class>com.epam.esm.controller.filter.ExceptionHandlerFilter</filter-class>-->
+<!--    </filter>-->
+<!--    <filter-mapping>-->
+<!--        <filter-name>ExceptionHandlerFilter</filter-name>-->
+<!--        <url-pattern>/*</url-pattern>-->
+<!--    </filter-mapping>-->
+<!--    <filter>-->
+<!--        <filter-name>PermissionFilter</filter-name>-->
+<!--        <filter-class>com.epam.esm.controller.filter.PermissionFilter</filter-class>-->
+<!--    </filter>-->
+<!--    <filter-mapping>-->
+<!--        <filter-name>PermissionFilter</filter-name>-->
+<!--        <url-pattern>/do</url-pattern>-->
+<!--    </filter-mapping>-->
+    <!--    <servlet>-->
+    <!--        <servlet-name>FrontController</servlet-name>-->
+    <!--        <servlet-class>com.epam.esm.controller.FrontController</servlet-class>-->
+    <!--    </servlet>-->
+    <!--    <servlet-mapping>-->
+    <!--        <servlet-name>FrontController</servlet-name>-->
+    <!--        <url-pattern>/do</url-pattern>-->
+    <!--    </servlet-mapping>-->
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
 
-    <error-page>
-        <error-code>401</error-code>
-        <location>/jsp/errors/error401.jsp</location>
-    </error-page>
-    <error-page>
-        <error-code>403</error-code>
-        <location>/jsp/errors/error403.jsp</location>
-    </error-page>
-    <error-page>
-        <error-code>404</error-code>
-        <location>/jsp/errors/error404.jsp</location>
-    </error-page>
-    <error-page>
-        <error-code>500</error-code>
-        <location>/jsp/errors/error500.jsp</location>
-    </error-page>
-    <error-page>
-        <error-code>503</error-code>
-        <location>/jsp/errors/error503.jsp</location>
-    </error-page>
+    <!-- Processes application requests -->
+    <servlet>
+        <servlet-name>appServlet</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>/WEB-INF/spring/appServlet/servlet-context.xml</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>appServlet</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
 </web-app>
 

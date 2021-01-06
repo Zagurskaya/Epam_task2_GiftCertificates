@@ -2,18 +2,14 @@ package com.epam.esm.model.dao.impl;
 
 import com.epam.esm.entity.User;
 import com.epam.esm.exception.DaoConstraintViolationException;
+import com.epam.esm.exception.DaoException;
 import com.epam.esm.model.dao.AbstractDao;
 import com.epam.esm.model.dao.UserDao;
-import com.epam.esm.exception.DaoException;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.SQLIntegrityConstraintViolationException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 

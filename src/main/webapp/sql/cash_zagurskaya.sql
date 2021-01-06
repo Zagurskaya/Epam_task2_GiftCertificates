@@ -31,3 +31,18 @@ VALUES (DEFAULT, 'Petrova',
         'Petrov Petor Petrovish', 'controller');
 
 COMMIT;
+
+CREATE TABLE IF NOT EXISTS `zagurskaya_epam_esm`.`tag`
+(
+    `id`       INT          NOT NULL AUTO_INCREMENT,
+    `name`    VARCHAR(50)  NULL,
+    PRIMARY KEY (`id`),
+    CONSTRAINT USER_CONSTR UNIQUE (name)
+)
+    ENGINE = InnoDB;
+
+START TRANSACTION;
+USE `zagurskaya`;
+INSERT INTO `zagurskaya_epam_esm`.`tag` (`id`, `name`) VALUES (DEFAULT, 'belita');
+INSERT INTO `zagurskaya_epam_esm`.`tag` (`id`, `name`) VALUES (DEFAULT, 'mark formel');
+COMMIT;
