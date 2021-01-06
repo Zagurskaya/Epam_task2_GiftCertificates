@@ -1,6 +1,6 @@
 package com.epam.esm.model.service.impl;
 
-import com.epam.esm.controller.command.AttributeName;
+import com.epam.esm.controller.AttributeName;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.CommandException;
 import com.epam.esm.exception.DaoConstraintViolationException;
@@ -90,40 +90,6 @@ public class TagServiceImpl implements TagService {
         } catch (DaoException e) {
             logger.log(Level.ERROR, "Database exception during delete tag ", e);
             throw new ServiceException("Database exception during delete tag ", e);
-        } finally {
-            transaction.endSingleQuery();
-        }
-    }
-
-    @Override
-    public int countRows() throws ServiceException {
-        TagDao tagDao = new TagDaoImpl();
-        EntityTransaction transaction = new EntityTransaction();
-        transaction.initSingleQuery(tagDao);
-        try {
-            return tagDao.countRows();
-        } catch (DaoException e) {
-            logger.log(Level.ERROR, "Database exception during fiend count tags row", e);
-            throw new ServiceException("Database exception during fiend count tags row", e);
-        } finally {
-            transaction.endSingleQuery();
-        }
-    }
-
-    @Override
-    public List<Tag> onePartOfListOnPage(int page) throws ServiceException {
-        List tags = new ArrayList();
-        TagDao tagDao = new TagDaoImpl();
-        EntityTransaction transaction = new EntityTransaction();
-        transaction.initSingleQuery(tagDao);
-        try {
-            int recordsPerPage = AttributeName.RECORDS_PER_PAGE;
-            int startRecord = (int) Math.ceil((page - 1) * recordsPerPage);
-            tags.addAll(tagDao.findAll(recordsPerPage, startRecord));
-            return tags;
-        } catch (DaoException e) {
-            logger.log(Level.ERROR, "Database exception during fiend all tag", e);
-            throw new ServiceException("Database exception during fiend all tag", e);
         } finally {
             transaction.endSingleQuery();
         }

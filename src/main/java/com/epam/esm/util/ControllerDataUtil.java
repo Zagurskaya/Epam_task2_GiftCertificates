@@ -1,6 +1,6 @@
 package com.epam.esm.util;
 
-import com.epam.esm.controller.command.AttributeName;
+import com.epam.esm.controller.AttributeName;
 import com.epam.esm.entity.User;
 import com.epam.esm.exception.CommandException;
 import org.apache.logging.log4j.Level;

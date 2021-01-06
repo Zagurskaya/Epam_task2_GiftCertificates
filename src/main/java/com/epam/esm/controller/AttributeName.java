@@ -1,4 +1,4 @@
-package com.epam.esm.controller.command;
+package com.epam.esm.controller;
 
 /**
  * Наименование атрибутов в сессии

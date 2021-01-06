@@ -43,20 +43,4 @@ public interface Service<T> {
      */
     boolean delete(T t) throws ServiceException;
 
-    /**
-     * Count of rows in the object table
-     *
-     * @return Count of rows
-     * @throws ServiceException error during execution of logical blocks and actions
-     */
-    int countRows() throws ServiceException;
-
-    /**
-     * Get a list of Objects on the page
-     *
-     * @param page - number page
-     * @return list of Objects
-     * @throws ServiceException error during execution of logical blocks and actions
-     */
-    List<T> onePartOfListOnPage(int page) throws ServiceException;
 }

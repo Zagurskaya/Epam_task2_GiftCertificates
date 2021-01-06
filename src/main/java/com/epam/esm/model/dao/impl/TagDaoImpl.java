@@ -23,10 +23,10 @@ public class TagDaoImpl extends AbstractDao implements TagDao {
     private static final String SQL_UPDATE_TAG = "UPDATE tag SET name=? WHERE id= ?";
     private static final String SQL_DELETE_TAG = "DELETE FROM tag WHERE id=?";
 
-    @Override
-    public List<Tag> findAll(int limit, int startPosition) throws DaoException {
-        return null;
-    }
+//    @Override
+//    public List<Tag> findAll(int limit, int startPosition) throws DaoException {
+//        return null;
+//    }
 
     @Override
     public Tag findById(Long id) throws DaoException {
@@ -105,13 +105,13 @@ public class TagDaoImpl extends AbstractDao implements TagDao {
         return 1 == result;
     }
 
-    @Override
-    public int countRows() throws DaoException {
-        int count=0;
-        return count;
-    }
-
 //    @Override
+//    public int countRows() throws DaoException {
+//        int count=0;
+//        return count;
+//    }
+
+    @Override
     public List<Tag> findAll() throws DaoException {
         List<Tag> tags = new ArrayList<>();
         try {

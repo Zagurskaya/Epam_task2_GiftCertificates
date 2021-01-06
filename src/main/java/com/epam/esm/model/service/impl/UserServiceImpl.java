@@ -1,5 +1,6 @@
 package com.epam.esm.model.service.impl;
 
+import com.epam.esm.controller.AttributeName;
 import com.epam.esm.entity.User;
 import com.epam.esm.exception.CommandException;
 import com.epam.esm.exception.DaoConstraintViolationException;
@@ -8,7 +9,6 @@ import com.epam.esm.model.dao.impl.UserDaoImpl;
 import com.epam.esm.exception.DaoException;
 import com.epam.esm.exception.ServiceException;
 import com.epam.esm.model.service.EntityTransaction;
-import com.epam.esm.controller.command.AttributeName;
 import com.epam.esm.model.service.UserService;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -135,40 +135,6 @@ public class UserServiceImpl implements UserService {
         } catch (DaoException e) {
             logger.log(Level.ERROR, "Database exception during delete user ", e);
             throw new ServiceException("Database exception during delete user ", e);
-        } finally {
-            transaction.endSingleQuery();
-        }
-    }
-
-    @Override
-    public int countRows() throws ServiceException {
-        UserDao userDao = new UserDaoImpl();
-        EntityTransaction transaction = new EntityTransaction();
-        transaction.initSingleQuery(userDao);
-        try {
-            return userDao.countRows();
-        } catch (DaoException e) {
-            logger.log(Level.ERROR, "Database exception during fiend count users row", e);
-            throw new ServiceException("Database exception during fiend count users row", e);
-        } finally {
-            transaction.endSingleQuery();
-        }
-    }
-
-    @Override
-    public List<User> onePartOfListOnPage(int page) throws ServiceException {
-        List users = new ArrayList();
-        UserDao userDao = new UserDaoImpl();
-        EntityTransaction transaction = new EntityTransaction();
-        transaction.initSingleQuery(userDao);
-        try {
-            int recordsPerPage = AttributeName.RECORDS_PER_PAGE;
-            int startRecord = (int) Math.ceil((page - 1) * recordsPerPage);
-            users.addAll(userDao.findAll(recordsPerPage, startRecord));
-            return users;
-        } catch (DaoException e) {
-            logger.log(Level.ERROR, "Database exception during fiend all user", e);
-            throw new ServiceException("Database exception during fiend all user", e);
         } finally {
             transaction.endSingleQuery();
         }

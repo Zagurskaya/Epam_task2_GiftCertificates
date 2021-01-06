@@ -28,34 +28,34 @@ public class UserDaoImpl extends AbstractDao implements UserDao {
     private static final String SQL_DELETE_USER = "DELETE FROM user WHERE id=?";
     private static final String SQL_SELECT_COUNT_USERS = "SELECT COUNT(login) FROM user";
 
-    @Override
-    public List<User> findAll(int limit, int startPosition) throws DaoException {
-        List<User> users = new ArrayList<>();
-        try {
-            try (PreparedStatement preparedStatement = connection.prepareStatement(SQL_SELECT_ALL_USERS_PAGE)) {
-                preparedStatement.setLong(1, limit);
-                preparedStatement.setLong(2, startPosition);
-                ResultSet resultSet = preparedStatement.executeQuery();
-                while (resultSet.next()) {
-                    Long id = resultSet.getLong(ColumnName.USER_ID);
-                    String login = resultSet.getString(ColumnName.USER_LOGIN);
-                    String fullName = resultSet.getString(ColumnName.USER_FULL_NAME);
-                    String role = resultSet.getString(ColumnName.USER_ROLE);
-                    User user = new User.Builder()
-                            .addId(id)
-                            .addLogin(login)
-                            .addFullName(fullName)
-                            .addRole(role)
-                            .build();
-                    users.add(user);
-                }
-            }
-        } catch (SQLException e) {
-            logger.log(Level.ERROR, "Database exception during fiend all user", e);
-            throw new DaoException("Database exception during fiend all user", e);
-        }
-        return users;
-    }
+//    @Override
+//    public List<User> findAll(int limit, int startPosition) throws DaoException {
+//        List<User> users = new ArrayList<>();
+//        try {
+//            try (PreparedStatement preparedStatement = connection.prepareStatement(SQL_SELECT_ALL_USERS_PAGE)) {
+//                preparedStatement.setLong(1, limit);
+//                preparedStatement.setLong(2, startPosition);
+//                ResultSet resultSet = preparedStatement.executeQuery();
+//                while (resultSet.next()) {
+//                    Long id = resultSet.getLong(ColumnName.USER_ID);
+//                    String login = resultSet.getString(ColumnName.USER_LOGIN);
+//                    String fullName = resultSet.getString(ColumnName.USER_FULL_NAME);
+//                    String role = resultSet.getString(ColumnName.USER_ROLE);
+//                    User user = new User.Builder()
+//                            .addId(id)
+//                            .addLogin(login)
+//                            .addFullName(fullName)
+//                            .addRole(role)
+//                            .build();
+//                    users.add(user);
+//                }
+//            }
+//        } catch (SQLException e) {
+//            logger.log(Level.ERROR, "Database exception during fiend all user", e);
+//            throw new DaoException("Database exception during fiend all user", e);
+//        }
+//        return users;
+//    }
 
     @Override
     public User findById(Long id) throws DaoException {
@@ -212,21 +212,21 @@ public class UserDaoImpl extends AbstractDao implements UserDao {
         return user;
     }
 
-    @Override
-    public int countRows() throws DaoException {
-        int count;
-        try {
-            try (PreparedStatement preparedStatement = connection.prepareStatement(SQL_SELECT_COUNT_USERS)) {
-                ResultSet resultSet = preparedStatement.executeQuery();
-                resultSet.next();
-                count = resultSet.getInt(1);
-            }
-        } catch (SQLException e) {
-            logger.log(Level.ERROR, "Database exception during fiend count users row", e);
-            throw new DaoException("Database exception during fiend count users row", e);
-        }
-        return count;
-    }
+//    @Override
+//    public int countRows() throws DaoException {
+//        int count;
+//        try {
+//            try (PreparedStatement preparedStatement = connection.prepareStatement(SQL_SELECT_COUNT_USERS)) {
+//                ResultSet resultSet = preparedStatement.executeQuery();
+//                resultSet.next();
+//                count = resultSet.getInt(1);
+//            }
+//        } catch (SQLException e) {
+//            logger.log(Level.ERROR, "Database exception during fiend count users row", e);
+//            throw new DaoException("Database exception during fiend count users row", e);
+//        }
+//        return count;
+//    }
 
     @Override
     public List<User> findAll() throws DaoException {

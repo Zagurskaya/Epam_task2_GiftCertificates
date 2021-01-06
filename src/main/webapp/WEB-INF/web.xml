@@ -4,42 +4,7 @@
 		 http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
          version="3.1">
     <display-name>Сервлеты zagurskaya</display-name>
-<!--    <context-param>-->
-<!--        <param-name>mail</param-name>-->
-<!--        <param-value>/WEB-INF/classes/installation.properties</param-value>-->
-<!--    </context-param>-->
-<!--    <filter>-->
-<!--        <filter-name>PageRedirectSecurityFilter</filter-name>-->
-<!--        <filter-class>com.epam.esm.controller.filter.PageRedirectSecurityFilter</filter-class>-->
-<!--    </filter>-->
-<!--    <filter-mapping>-->
-<!--        <filter-name>PageRedirectSecurityFilter</filter-name>-->
-<!--        <url-pattern>/jsp/*</url-pattern>-->
-<!--    </filter-mapping>-->
-<!--    <filter>-->
-<!--        <filter-name>ExceptionHandlerFilter</filter-name>-->
-<!--        <filter-class>com.epam.esm.controller.filter.ExceptionHandlerFilter</filter-class>-->
-<!--    </filter>-->
-<!--    <filter-mapping>-->
-<!--        <filter-name>ExceptionHandlerFilter</filter-name>-->
-<!--        <url-pattern>/*</url-pattern>-->
-<!--    </filter-mapping>-->
-<!--    <filter>-->
-<!--        <filter-name>PermissionFilter</filter-name>-->
-<!--        <filter-class>com.epam.esm.controller.filter.PermissionFilter</filter-class>-->
-<!--    </filter>-->
-<!--    <filter-mapping>-->
-<!--        <filter-name>PermissionFilter</filter-name>-->
-<!--        <url-pattern>/do</url-pattern>-->
-<!--    </filter-mapping>-->
-    <!--    <servlet>-->
-    <!--        <servlet-name>FrontController</servlet-name>-->
-    <!--        <servlet-class>com.epam.esm.controller.FrontController</servlet-class>-->
-    <!--    </servlet>-->
-    <!--    <servlet-mapping>-->
-    <!--        <servlet-name>FrontController</servlet-name>-->
-    <!--        <url-pattern>/do</url-pattern>-->
-    <!--    </servlet-mapping>-->
+
     <listener>
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
     </listener>

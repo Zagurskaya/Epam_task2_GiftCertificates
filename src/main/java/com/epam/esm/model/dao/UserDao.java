@@ -16,13 +16,13 @@ public interface UserDao extends Dao<User> {
      */
     User findByLogin(String login) throws DaoException;
 
-    /**
-     * Find a list of users
-     *
-     * @return list of users
-     * @throws DaoException database access error or other errors
-     */
-    List<User> findAll() throws DaoException;
+//    /**
+//     * Find a list of users
+//     *
+//     * @return list of users
+//     * @throws DaoException database access error or other errors
+//     */
+//    List<User> findAll() throws DaoException;
 
     /**
      * Create user with password

@@ -86,10 +86,10 @@ public class UserServiceIntegrationTest extends Assert {
         assertEquals(userListBefore.size() - 1, userListAfter.size());
     }
 
-    @Test(priority = 6)
-    public void countRowsTest() throws ServiceException {
-        List<User> userLis = userService.findAll();
-        int actual = userService.countRows();
-        assertEquals(actual, userLis.size());
-    }
+//    @Test(priority = 6)
+//    public void countRowsTest() throws ServiceException {
+//        List<User> userLis = userService.findAll();
+//        int actual = userService.countRows();
+//        assertEquals(actual, userLis.size());
+//    }
 }
