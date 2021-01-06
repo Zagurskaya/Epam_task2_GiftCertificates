@@ -1,6 +1,5 @@
 package com.epam.esm.model.service.impl;
 
-import com.epam.esm.controller.AttributeName;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.CommandException;
 import com.epam.esm.exception.DaoConstraintViolationException;
