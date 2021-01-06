@@ -7,6 +7,13 @@ import java.util.List;
 
 public interface Service<T> {
     /**
+     * Get Object List
+     *
+     * @return Object List
+     */
+    List<T> findAll() throws ServiceException;
+
+    /**
      * Search Object by ID
      *
      * @param id - ID

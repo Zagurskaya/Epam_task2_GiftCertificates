@@ -14,15 +14,6 @@ public interface Dao<T> {
      * @throws DaoException database access error or other errors.
      */
     List<T> findAll() throws DaoException;
-//    /**
-//     * Get a list of Objects starting from the startPosition position in the count of <= limit
-//     *
-//     * @param limit         - count
-//     * @param startPosition - start position
-//     * @return list of Objects
-//     * @throws DaoException database access error or other errors.
-//     */
-//    List<T> findAll(int limit, int startPosition) throws DaoException;
 
     /**
      * Object search by ID
@@ -61,14 +52,6 @@ public interface Dao<T> {
      * @throws DaoException database access error or other errors.
      */
     boolean delete(T t) throws DaoException;
-
-//    /**
-//     * Count of rows in the object table
-//     *
-//     * @return Count of rows
-//     * @throws DaoException database access error or other errors.
-//     */
-//    int countRows() throws DaoException;
 
     /**
      * Establishing a connection

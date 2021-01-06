@@ -14,14 +14,12 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
 public class TagServiceImpl implements TagService {
 
     private static final Logger logger = LogManager.getLogger(TagServiceImpl.class);
-    private static final String HASH_ALGORITHM = "SHA-512";
 
     @Override
     public Tag findById(Long id) throws ServiceException {
@@ -44,8 +42,7 @@ public class TagServiceImpl implements TagService {
         EntityTransaction transaction = new EntityTransaction();
         transaction.initSingleQuery(tagDao);
         try {
-//            ???????????????????????
-            if (tagDao.findById(tag.getId()) == null) {
+            if (tagDao.findByName(tag.getName()) == null) {
                 return tagDao.create(tag) != 0L;
             } else {
                 logger.log(Level.ERROR, "Duplicate data tag's login ");
@@ -95,17 +92,17 @@ public class TagServiceImpl implements TagService {
         }
     }
 
-//    public List<Tag> findAll() throws ServiceException {
-//        TagDao tagDao = new TagDaoImpl();
-//        EntityTransaction transaction = new EntityTransaction();
-//        transaction.initSingleQuery(tagDao);
-//        try {
-//            return tagDao.findAll();
-//        } catch (DaoException e) {
-//            logger.log(Level.ERROR, "Database exception during fiend all tag", e);
-//            throw new ServiceException("Database exception during fiend all tag", e);
-//        } finally {
-//            transaction.endSingleQuery();
-//        }
-//    }
+    public List<Tag> findAll() throws ServiceException {
+        TagDao tagDao = new TagDaoImpl();
+        EntityTransaction transaction = new EntityTransaction();
+        transaction.initSingleQuery(tagDao);
+        try {
+            return tagDao.findAll();
+        } catch (DaoException e) {
+            logger.log(Level.ERROR, "Database exception during fiend all tag", e);
+            throw new ServiceException("Database exception during fiend all tag", e);
+        } finally {
+            transaction.endSingleQuery();
+        }
+    }
 }

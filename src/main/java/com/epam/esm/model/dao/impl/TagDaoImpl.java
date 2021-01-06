@@ -19,14 +19,10 @@ public class TagDaoImpl extends AbstractDao implements TagDao {
 
     private static final String SQL_SELECT_ALL_TAGS = "SELECT id, name FROM tag ";
     private static final String SQL_SELECT_TAG_BY_ID = "SELECT id, name FROM tag WHERE id= ? ";
+    private static final String SQL_SELECT_TAG_BY_NAME = "SELECT id, name FROM tag WHERE name = ? ";
     private static final String SQL_INSERT_TAG = "INSERT INTO tag(name) VALUES (?)";
     private static final String SQL_UPDATE_TAG = "UPDATE tag SET name=? WHERE id= ?";
     private static final String SQL_DELETE_TAG = "DELETE FROM tag WHERE id=?";
-
-//    @Override
-//    public List<Tag> findAll(int limit, int startPosition) throws DaoException {
-//        return null;
-//    }
 
     @Override
     public Tag findById(Long id) throws DaoException {
@@ -105,12 +101,6 @@ public class TagDaoImpl extends AbstractDao implements TagDao {
         return 1 == result;
     }
 
-//    @Override
-//    public int countRows() throws DaoException {
-//        int count=0;
-//        return count;
-//    }
-
     @Override
     public List<Tag> findAll() throws DaoException {
         List<Tag> tags = new ArrayList<>();
@@ -131,5 +121,25 @@ public class TagDaoImpl extends AbstractDao implements TagDao {
             throw new DaoException("Database exception during fiend all tag", e);
         }
         return tags;
+    }
+
+    @Override
+    public Tag findByName(String name) throws DaoException {
+        Tag tag = null;
+        try {
+            try (PreparedStatement preparedStatement = connection.prepareStatement(SQL_SELECT_TAG_BY_NAME)) {
+                preparedStatement.setString(1, name);
+                ResultSet resultSet = preparedStatement.executeQuery();
+                while (resultSet.next()) {
+                    Long id = resultSet.getLong(ColumnName.TAG_ID);
+                    tag.setId(id);
+                    tag.setName(name);
+                }
+            }
+        } catch (SQLException e) {
+            logger.log(Level.ERROR, "Database exception during fiend tag by name", e);
+            throw new DaoException("Database exception during fiend tag by name", e);
+        }
+        return tag;
     }
 }
