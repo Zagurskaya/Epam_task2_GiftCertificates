@@ -3,17 +3,17 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>Epam_task2_GiftCertificates</artifactId>
-    <groupId>com.gmail.zagurskaya</groupId>
+    <groupId>com.epam.esm</groupId>
     <version>1.0-SNAPSHOT</version>
   </parent>
 
-  <groupId>com.gmail.zagurskaya</groupId>
+  <groupId>com.epam.esm</groupId>
   <artifactId>web</artifactId>
   <version>1.0-SNAPSHOT</version>
 
   <dependencies>
     <dependency>
-      <groupId>com.gmail.zagurskaya</groupId>
+      <groupId>com.epam.esm</groupId>
       <artifactId>service</artifactId>
       <version>1.0-SNAPSHOT</version>
     </dependency>
