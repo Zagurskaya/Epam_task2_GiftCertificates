@@ -1,4 +1,4 @@
-package com.epam.esm.repository.impl;
+package com.epam.esm.impl;
 
 /**
  * Name of the table columns in the database

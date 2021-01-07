@@ -1,4 +1,4 @@
-package com.epam.esm.controller;
+package com.epam.esm.web.controller;
 
 import com.epam.esm.model.TagDTO;
 

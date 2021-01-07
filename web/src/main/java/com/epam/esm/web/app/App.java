@@ -1,7 +1,7 @@
-package com.epam.esm.app;
+package com.epam.esm.web.app;
 
-import com.epam.esm.config.AppConfig;
-import com.epam.esm.controller.TagController;
+import com.epam.esm.web.config.AppConfig;
+import com.epam.esm.web.controller.TagController;
 import com.epam.esm.model.TagDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

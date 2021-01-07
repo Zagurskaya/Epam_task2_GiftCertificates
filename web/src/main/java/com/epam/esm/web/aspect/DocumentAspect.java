@@ -1,4 +1,4 @@
-package com.epam.esm.aspect;
+package com.epam.esm.web.aspect;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,7 +23,7 @@ public class DocumentAspect {
         return localDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd 00:00:00.000"));
     }
 
-    @Pointcut("execution(* com.epam.esm.controller.impl.*.*(..))")
+    @Pointcut("execution(* com.epam.esm.web.controller.impl.*.*(..))")
     public void callDocumentAdd() {
     }
 

@@ -1,7 +1,7 @@
-package com.epam.esm.controller.impl;
+package com.epam.esm.web.controller.impl;
 
 import com.epam.esm.TagService;
-import com.epam.esm.controller.TagController;
+import com.epam.esm.web.controller.TagController;
 import com.epam.esm.model.TagDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

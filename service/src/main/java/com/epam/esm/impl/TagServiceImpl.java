@@ -1,4 +1,4 @@
-package com.epam.esm.service.impl;
+package com.epam.esm.impl;
 
 import com.epam.esm.TagRepository;
 import com.epam.esm.TagService;
@@ -7,15 +7,11 @@ import com.epam.esm.converter.TagConverter;
 import com.epam.esm.exception.ServiceException;
 import com.epam.esm.model.Tag;
 import com.epam.esm.model.TagDTO;
-import com.epam.esm.repository.impl.TagRepositoryImpl;
+import com.epam.esm.impl.TagRepositoryImpl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.sql.Connection;
 import java.sql.SQLException;
