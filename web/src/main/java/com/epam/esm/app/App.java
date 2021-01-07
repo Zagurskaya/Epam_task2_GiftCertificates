@@ -1,8 +1,8 @@
 package com.epam.esm.app;
 
 import com.epam.esm.config.AppConfig;
-import com.epam.esm.controller.DocumentController;
-import com.epam.esm.model.DocumentDTO;
+import com.epam.esm.controller.TagController;
+import com.epam.esm.model.TagDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -18,22 +18,21 @@ public class App {
         context.register(AppConfig.class);
         context.refresh();
 
-        DocumentController documentController = context.getBean(DocumentController.class);
+        TagController tagController = context.getBean(TagController.class);
 
-        DocumentDTO document1 = new DocumentDTO();
-        document1.setDescription("Document1");
+        TagDTO tag1 = new TagDTO();
+        tag1.setName("Tag1");
 
-        DocumentDTO document2 = new DocumentDTO();
-        document2.setDescription("Document2");
+        TagDTO tag2 = new TagDTO();
+        tag2.setName("Tag2");
 
-        DocumentDTO savedDocument1 = documentController.add(document1);
-        DocumentDTO savedDocument2 = documentController.add(document2);
+        Long id1 = tagController.create(tag1);
+        Long id2 = tagController.create(tag2);
 
-        logger.info(documentController.getDocumentById(savedDocument1.getId()));
-        logger.info(documentController.getDocumentById(savedDocument2.getId()));
+        logger.info(tagController.getTagById(id1));
+        logger.info(tagController.getTagById(id2));
 
-        documentController.delete(savedDocument1.getId());
-
+        tagController.delete(id1);
 
     }
 }

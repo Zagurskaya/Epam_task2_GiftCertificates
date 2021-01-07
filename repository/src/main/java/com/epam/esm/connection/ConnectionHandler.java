@@ -3,9 +3,7 @@ package com.epam.esm.connection;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Properties;
-import javax.annotation.PostConstruct;
 
 import com.epam.esm.exception.DatabaseException;
 import com.epam.esm.properties.DatabaseProperties;
@@ -40,28 +38,6 @@ public class ConnectionHandler {
             properties.setProperty("useUnicode", "true");
             properties.setProperty("characterEncoding", "cp1251");
             return DriverManager.getConnection(databaseProperties.getUrl(), properties);
-        } catch (SQLException e) {
-            logger.error(ERROR_MESSAGE, e);
-            throw new DatabaseException(ERROR_MESSAGE);
-        }
-    }
-
-    @PostConstruct
-    public void createDatabaseTables() {
-//        String createTableQuery = "CREATE TABLE IF NOT EXISTS PERMISSION(id int auto_increment primary key, name varchar(100))";
-        String createTableQuery = "CREATE TABLE IF NOT EXISTS `jd2_project_week2`.`document` (\n" +
-                "  `id` INT(100) NOT NULL AUTO_INCREMENT,\n" +
-                "  `uniqueNumber` VARCHAR(100) NOT NULL,\n" +
-                "  `description` VARCHAR(100) NULL,\n" +
-                "  PRIMARY KEY (`id`))";
-        try (Connection connection = getConnection()) {
-            connection.setAutoCommit(false);
-            try (Statement statement = connection.createStatement()) {
-                statement.execute(createTableQuery);
-                connection.commit();
-            } catch (Exception e) {
-                connection.rollback();
-            }
         } catch (SQLException e) {
             logger.error(ERROR_MESSAGE, e);
             throw new DatabaseException(ERROR_MESSAGE);
