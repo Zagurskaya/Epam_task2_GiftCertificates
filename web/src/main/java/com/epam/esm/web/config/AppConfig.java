@@ -7,7 +7,6 @@ import org.springframework.context.annotation.PropertySource;
 
 @Configuration
 @ComponentScan(basePackages = "com.epam.esm.*")
-@PropertySource(value = "jdbc.properties")
-@EnableAspectJAutoProxy
+@PropertySource(value = "classpath:/jdbc.properties")
 public class AppConfig {
 }

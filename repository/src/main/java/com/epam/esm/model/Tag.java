@@ -32,7 +32,7 @@ public class Tag {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("User{")
+        sb.append("Tag{")
                 .append("id=")
                 .append(id)
                 .append(", name=")
