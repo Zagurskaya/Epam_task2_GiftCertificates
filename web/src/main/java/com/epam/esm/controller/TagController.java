@@ -1,4 +1,4 @@
-package com.epam.esm.web.controller;
+package com.epam.esm.controller;
 
 import com.epam.esm.TagService;
 import com.epam.esm.exception.ServiceException;

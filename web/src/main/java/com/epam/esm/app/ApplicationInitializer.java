@@ -1,9 +1,8 @@
-package com.epam.esm.web.app;
+package com.epam.esm.app;
 
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
-import org.springframework.web.context.support.GenericWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 
 import javax.servlet.ServletContext;
@@ -13,13 +12,11 @@ import javax.servlet.ServletRegistration;
 public class ApplicationInitializer implements WebApplicationInitializer {
 
     //Called first when the application starts loading.
-    public void onStartup(ServletContext servletContext)
-            throws ServletException {
+    public void onStartup(ServletContext servletContext) throws ServletException {
         System.out.println("Inside application initializer...");
 
         //Registering the class that incorporates the annotated DispatcherServlet configuration of spring
         AnnotationConfigWebApplicationContext rootContext = new AnnotationConfigWebApplicationContext();
-//        rootContext.register(DispatcherConfig.class);
         rootContext.scan("com.epam.esm");
 
         //Adding the listener for the rootContext
