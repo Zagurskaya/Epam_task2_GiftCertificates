@@ -5,7 +5,6 @@ import com.epam.esm.exception.ServiceException;
 import com.epam.esm.model.TagDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,22 +25,15 @@ public class TagController {
         return tagService.findAll();
     }
 
-    @GetMapping(value = "/tag/{id}",
-            produces = MediaType.APPLICATION_JSON_VALUE,
-            consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TagDTO> getTagById(@PathVariable("id") long id) throws ServiceException {
-        return new ResponseEntity(tagService.findById(id), HttpStatus.OK);
+    @GetMapping(value = "/tag/{id}")
+    public TagDTO getTagById(@PathVariable("id") long id) throws ServiceException {
+        return tagService.findById(id);
     }
 
-//    @GetMapping(value = "/tag/{id}")
-//    public TagDTO getTagById(@PathVariable("id") long id) throws ServiceException {
-//        return tagService.findById(id);
-//    }
-
     @PostMapping(value = "/tag")
-    public ResponseEntity createTag(@RequestBody TagDTO tag) throws ServiceException {
-        tagService.create(tag);
-        return new ResponseEntity(HttpStatus.OK);
+    public Long createTag(@RequestBody TagDTO tag) throws ServiceException {
+        Long id = tagService.create(tag);
+        return id;
     }
 
     @PutMapping(value = "/tag/{id}")
