@@ -7,36 +7,36 @@ import java.util.List;
 
 public interface TagService {
     /**
-     * Search Tag by ID
+     * Search TagDTO by ID
      *
      * @param id - ID
-     * @return Tag
+     * @return TagDTO
      * @throws ServiceException error during execution of logical blocks and actions
      */
     TagDTO findById(Long id) throws ServiceException;
 
     /**
-     * Create Tag
+     * Create TagDTO
      *
-     * @param tagDTO - Tag
+     * @param tagDTO - TagDTO
      * @return true on successful createCheckEn
      * @throws ServiceException error during execution of logical blocks and actions
      */
     Long create(TagDTO tagDTO) throws ServiceException;
 
     /**
-     * Update Tag
+     * Update TagDTO
      *
-     * @param tagDTO - Tag
+     * @param tagDTO - TagDTO
      * @return true on successful update
      * @throws ServiceException error during execution of logical blocks and actions
      */
     boolean update(TagDTO tagDTO) throws ServiceException;
 
     /**
-     * Delete Tag
+     * Delete TagDTO
      *
-     * @param id - Tag id
+     * @param id - TagDTO id
      * @return true on successful delete
      * @throws ServiceException error during execution of logical blocks and actions
      */

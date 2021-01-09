@@ -1,13 +1,12 @@
 package com.epam.esm.impl;
 
-import com.epam.esm.TagRepository;
-import com.epam.esm.TagService;
+import com.epam.esm.GiftCertificateRepository;
+import com.epam.esm.GiftCertificateService;
 import com.epam.esm.connection.ConnectionHandler;
-import com.epam.esm.converter.TagConverter;
+import com.epam.esm.converter.GiftCertificateConverter;
 import com.epam.esm.exception.ServiceException;
-import com.epam.esm.model.Tag;
-import com.epam.esm.model.TagDTO;
-import com.epam.esm.impl.TagRepositoryImpl;
+import com.epam.esm.model.GiftCertificate;
+import com.epam.esm.model.GiftCertificateDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,42 +18,42 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class TagServiceImpl implements TagService {
+public class GiftCertificateServiceImpl implements GiftCertificateService {
 
-    private static final String TAG_ADDING_ERROR_MESSAGE = "Error while adding Tag.";
-    private static final String TAGS_GETTING_ERROR_MESSAGE = "Error while getting Tags list.";
-    private static final String TAG_UPDATING_ERROR_MESSAGE = "Error while updating Tag status.";
+    private static final String GIFT_CERTIFICATE_ADDING_ERROR_MESSAGE = "Error while adding GiftCertificate.";
+    private static final String GIFT_CERTIFICATES_GETTING_ERROR_MESSAGE = "Error while getting GiftCertificates list.";
+    private static final String GIFT_CERTIFICATE_UPDATING_ERROR_MESSAGE = "Error while updating GiftCertificate status.";
     private static final String CONNECTION_CLOSE_ERROR_MESSAGE = "Error while closing connection.";
 
-    private static final Logger logger = LogManager.getLogger(TagRepositoryImpl.class);
+    private static final Logger logger = LogManager.getLogger(GiftCertificateRepositoryImpl.class);
 
-    private TagRepository tagRepository;
-    private TagConverter tagConverter;
+    private GiftCertificateRepository giftCertificateRepository;
+    private GiftCertificateConverter giftCertificateConverter;
     private ConnectionHandler connectionHandler;
 
     @Autowired
-    public TagServiceImpl(
-            TagRepository tagRepository,
-            TagConverter tagConverter,
+    public GiftCertificateServiceImpl(
+            GiftCertificateRepository giftCertificateRepository,
+            GiftCertificateConverter giftCertificateConverter,
             ConnectionHandler connectionHandler
     ) {
-        this.tagRepository = tagRepository;
-        this.tagConverter = tagConverter;
+        this.giftCertificateRepository = giftCertificateRepository;
+        this.giftCertificateConverter = giftCertificateConverter;
         this.connectionHandler = connectionHandler;
     }
 
     @Override
-    public TagDTO findById(Long id) throws ServiceException {
+    public GiftCertificateDTO findById(Long id) throws ServiceException {
         try (Connection connection = connectionHandler.getConnection()) {
             try {
                 connection.setAutoCommit(false);
-                Tag tag = tagRepository.findById(connection, id);
+                GiftCertificate giftCertificate = giftCertificateRepository.findById(connection, id);
                 connection.commit();
-                return tagConverter.toDTO(tag);
+                return giftCertificateConverter.toDTO(giftCertificate);
             } catch (SQLException e) {
                 connection.rollback();
                 logger.error(e.getMessage(), e);
-                throw new ServiceException(TAG_ADDING_ERROR_MESSAGE, e);
+                throw new ServiceException(GIFT_CERTIFICATE_ADDING_ERROR_MESSAGE, e);
             }
         } catch (SQLException e) {
             logger.error(e.getMessage(), e);
@@ -63,18 +62,18 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public Long create(TagDTO tagDTO) {
+    public Long create(GiftCertificateDTO giftCertificateDTO) {
         try (Connection connection = connectionHandler.getConnection()) {
             try {
                 connection.setAutoCommit(false);
-                Tag tag = tagConverter.toEntity(tagDTO);
-                Long id = tagRepository.create(connection, tag);
+                GiftCertificate giftCertificate = giftCertificateConverter.toEntity(giftCertificateDTO);
+                Long id = giftCertificateRepository.create(connection, giftCertificate);
                 connection.commit();
                 return id;
             } catch (SQLException e) {
                 connection.rollback();
                 logger.error(e.getMessage(), e);
-                throw new ServiceException(TAG_ADDING_ERROR_MESSAGE, e);
+                throw new ServiceException(GIFT_CERTIFICATE_ADDING_ERROR_MESSAGE, e);
             }
         } catch (SQLException e) {
             logger.error(e.getMessage(), e);
@@ -83,18 +82,18 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public List<TagDTO> findAll() {
+    public List<GiftCertificateDTO> findAll() {
         try (Connection connection = connectionHandler.getConnection()) {
             try {
                 connection.setAutoCommit(false);
-                List<Tag> tags = tagRepository.findAll(connection);
-                List<TagDTO> tagDTOs = getTagDTOs(tags);
+                List<GiftCertificate> giftCertificates = giftCertificateRepository.findAll(connection);
+                List<GiftCertificateDTO> giftCertificateDTOs = getGiftCertificateDTOs(giftCertificates);
                 connection.commit();
-                return tagDTOs;
+                return giftCertificateDTOs;
             } catch (SQLException e) {
                 connection.rollback();
                 logger.error(e.getMessage(), e);
-                throw new ServiceException(TAGS_GETTING_ERROR_MESSAGE, e);
+                throw new ServiceException(GIFT_CERTIFICATES_GETTING_ERROR_MESSAGE, e);
             }
         } catch (SQLException e) {
             logger.error(e.getMessage(), e);
@@ -103,24 +102,24 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public boolean update(TagDTO tagDTO) {
+    public boolean update(GiftCertificateDTO giftCertificateDTO) {
         boolean result = false;
         try (Connection connection = connectionHandler.getConnection()) {
             try {
                 connection.setAutoCommit(false);
-                Tag tag = tagRepository.findById(connection, tagDTO.getId());
-                if (tag == null) {
+                GiftCertificate giftCertificate = giftCertificateRepository.findById(connection, giftCertificateDTO.getId());
+                if (giftCertificate == null) {
                     connection.commit();
                     return result;
                 }
-                tag.setName(tagDTO.getName());
-                result = tagRepository.update(connection, tag);
+                giftCertificate.setName(giftCertificateDTO.getName());
+                result = giftCertificateRepository.update(connection, giftCertificate);
                 connection.commit();
                 return result;
             } catch (SQLException e) {
                 connection.rollback();
                 logger.error(e.getMessage(), e);
-                throw new ServiceException(TAG_UPDATING_ERROR_MESSAGE, e);
+                throw new ServiceException(GIFT_CERTIFICATE_UPDATING_ERROR_MESSAGE, e);
             }
         } catch (SQLException e) {
             logger.error(e.getMessage(), e);
@@ -134,29 +133,29 @@ public class TagServiceImpl implements TagService {
         try (Connection connection = connectionHandler.getConnection()) {
             try {
                 connection.setAutoCommit(false);
-                Tag tag = tagRepository.findById(connection, id);
-                if (tag == null) {
+                GiftCertificate giftCertificate = giftCertificateRepository.findById(connection, id);
+                if (giftCertificate == null) {
                     connection.commit();
                     return result;
                 }
-                result = tagRepository.delete(connection, id);
+                result = giftCertificateRepository.delete(connection, id);
                 connection.commit();
                 return result;
             } catch (SQLException e) {
                 connection.rollback();
                 logger.error(e.getMessage(), e);
-                throw new ServiceException(TAG_UPDATING_ERROR_MESSAGE, e);
+                throw new ServiceException(GIFT_CERTIFICATE_UPDATING_ERROR_MESSAGE, e);
             }
         } catch (SQLException e) {
             logger.error(e.getMessage(), e);
             throw new ServiceException(CONNECTION_CLOSE_ERROR_MESSAGE, e);
         }    }
 
-    private List<TagDTO> getTagDTOs(List<Tag> tags) {
-        List<TagDTO> tagDTOs = new ArrayList<>();
-        for (Tag tag : tags) {
-            tagDTOs.add(tagConverter.toDTO(tag));
+    private List<GiftCertificateDTO> getGiftCertificateDTOs(List<GiftCertificate> giftCertificates) {
+        List<GiftCertificateDTO> giftCertificateDTOs = new ArrayList<>();
+        for (GiftCertificate giftCertificate : giftCertificates) {
+            giftCertificateDTOs.add(giftCertificateConverter.toDTO(giftCertificate));
         }
-        return tagDTOs;
+        return giftCertificateDTOs;
     }
 }

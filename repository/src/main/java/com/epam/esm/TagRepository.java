@@ -8,15 +8,15 @@ import java.util.List;
 
 public interface TagRepository {
     /**
-     * Get a list of Objects
+     * Get a list of Tags
      *
-     * @return list of Objects
+     * @return list of Tags
      * @throws DaoException database access error or other errors.
      */
     List<Tag> findAll(Connection connection) throws DaoException;
 
     /**
-     * Object search by ID
+     * Tag search by ID
      *
      * @param id - ID
      * @return object
@@ -25,18 +25,18 @@ public interface TagRepository {
     Tag findById(Connection connection, Long id) throws DaoException;
 
     /**
-     * Create Object
+     * Create Tag
      *
-     * @param tag - Object
+     * @param tag - Tag
      * @return true on successful creation
      * @throws DaoException database access error or other errors
      */
     Long create(Connection connection, Tag tag) throws DaoException;
 
     /**
-     * Update Object
+     * Update Tag
      *
-     * @param tag - Object
+     * @param tag - Tag
      * @return true on successful change
      * @throws DaoException database access error or other errors
      */
