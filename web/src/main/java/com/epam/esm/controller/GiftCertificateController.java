@@ -42,12 +42,12 @@ public class GiftCertificateController {
 
     @PutMapping(value = "/giftCertificate/{id}")
     public ResponseEntity updateGiftCertificate(@PathVariable("id") long id, @RequestBody GiftCertificateDTO updateGiftCertificate) throws ServiceException {
-        GiftCertificateDTO giftCertificate = giftCertificateService.findById(id);
-        if (giftCertificate == null) {
+        GiftCertificateDTO giftCertificateDTO = giftCertificateService.findById(id);
+        if (giftCertificateDTO == null) {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
-        giftCertificate.setName(updateGiftCertificate.getName());
-        giftCertificateService.update(giftCertificate);
+        updateGiftCertificate.setId(id);
+        giftCertificateService.update(updateGiftCertificate);
         return new ResponseEntity(HttpStatus.OK);
     }
 

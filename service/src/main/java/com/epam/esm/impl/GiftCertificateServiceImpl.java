@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,8 +28,9 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     private static final String GIFT_CERTIFICATE_ADDING_ERROR_MESSAGE = "Error while adding GiftCertificate.";
     private static final String GIFT_CERTIFICATES_GETTING_ERROR_MESSAGE = "Error while getting GiftCertificates list.";
-    private static final String GIFT_CERTIFICATE_UPDATING_ERROR_MESSAGE = "Error while updating GiftCertificate status.";
-    private static final String GIFT_CERTIFICATE_DELETING_ERROR_MESSAGE = "Error while updating GiftCertificate status.";
+    private static final String GIFT_CERTIFICATE_UPDATING_ERROR_MESSAGE = "Error while updating GiftCertificate.";
+    private static final String GIFT_CERTIFICATE_TAGS_UPDATING_ERROR_MESSAGE = "Error while updating GiftCertificate and tag list.";
+    private static final String GIFT_CERTIFICATE_DELETING_ERROR_MESSAGE = "Error while deleting GiftCertificate.";
     private static final String CONNECTION_CLOSE_ERROR_MESSAGE = "Error while closing connection.";
 
     private static final Logger logger = LogManager.getLogger(GiftCertificateRepositoryImpl.class);
@@ -173,14 +176,68 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                     connection.commit();
                     return result;
                 }
-                giftCertificate.setName(giftCertificateDTO.getName());
+                if (giftCertificateDTO.getName() != null) {
+                    giftCertificate.setName(giftCertificateDTO.getName());
+                }
+                if (giftCertificateDTO.getDescription() != null) {
+                    giftCertificate.setDescription(giftCertificateDTO.getDescription());
+                }
+                if (giftCertificateDTO.getPrice() != null) {
+                    giftCertificate.setPrice(giftCertificateDTO.getPrice());
+                }
+                if (giftCertificateDTO.getDuration() != null) {
+                    giftCertificate.setDuration(giftCertificateDTO.getDuration());
+                }
+                giftCertificate.setLastUpdateDate(LocalDateTime.now());
                 result = giftCertificateRepository.update(connection, giftCertificate);
+
+                List<TagDTO> tagDTOList = giftCertificateDTO.getTags();
+                if (tagDTOList != null && tagDTOList.size() != 0) {
+                    List<Long> tagIdList = tagDTOList.stream().map(task -> task.getId()).collect(Collectors.toList());
+                    List<Tag> oldTagList = tagRepository.findListTagsByCertificateId(connection, giftCertificate.getId());
+                    List<Long> oldTagIdList = oldTagList.stream().map(task -> task.getId()).collect(Collectors.toList());
+
+                    List<TagDTO> updateTagDTOList = tagDTOList.stream().filter(task -> task.getId() != null).collect(Collectors.toList());
+                    List<Long> idListUpdateTagDTOList = updateTagDTOList.stream().map(task -> task.getId()).collect(Collectors.toList());
+
+                    List<TagDTO> createTagList = tagDTOList.stream().filter(task -> task.getId() == null).collect(Collectors.toList());
+
+                    if (!tagIdList.containsAll(idListUpdateTagDTOList)) {
+                        throw new ServiceException("Tag List isn't relevant");
+                    }
+
+                    List<Long> deleteTagIdList = new ArrayList<>(oldTagIdList);
+                    deleteTagIdList.removeAll(idListUpdateTagDTOList);
+
+                    List<TagDTO> addTagList = new ArrayList<>(tagDTOList);
+                    addTagList.removeAll(createTagList);
+//                    List<TagDTO> listTest = new ArrayList<>();
+//                    for (Tag tag : oldTagList) {
+//                        TagDTO tagDTO = tagConverter.toDTO(tag);
+//                        listTest.add(tagDTO);
+//                    }
+                    addTagList.removeAll(oldTagList.stream().map(tagConverter::toDTO).collect(Collectors.toList()));
+
+                    for (TagDTO tagDTO : createTagList) {
+                        Tag newTag = new Tag();
+                        newTag.setName(tagDTO.getName());
+                        Long newTagId = tagRepository.create(connection, newTag);
+                        tagRepository.createConnectionBetweenTagAndGiftCertificate(connection, newTagId, giftCertificate.getId());
+                    }
+                    addTagList.forEach(tagDTO -> {
+                        tagRepository.createConnectionBetweenTagAndGiftCertificate(connection, tagDTO.getId(), giftCertificate.getId());
+                    });
+
+                    deleteTagIdList.forEach(id -> {
+                        tagRepository.deleteConnectionBetweenTagAndGiftCertificate(connection, id, giftCertificate.getId());
+                    });
+                }
                 connection.commit();
                 return result;
             } catch (SQLException e) {
                 connection.rollback();
                 logger.error(e.getMessage(), e);
-                throw new ServiceException(GIFT_CERTIFICATE_UPDATING_ERROR_MESSAGE, e);
+                throw new ServiceException(GIFT_CERTIFICATE_TAGS_UPDATING_ERROR_MESSAGE, e);
             }
         } catch (SQLException e) {
             logger.error(e.getMessage(), e);

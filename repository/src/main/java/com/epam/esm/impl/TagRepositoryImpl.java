@@ -27,6 +27,7 @@ public class TagRepositoryImpl implements TagRepository {
     private static final String SQL_SELECT_TAG_BY_NAME = "SELECT id, name FROM tag WHERE name = ? ";
     private static final String SQL_INSERT_TAG = "INSERT INTO tag(name) VALUES (?)";
     private static final String SQL_INSERT_CONNECTION_CERTIFICATE_TAG = "INSERT INTO certificate_tag(certificateId, tagId) VALUES (?, ?)";
+    private static final String SQL_DELETE_CONNECTION_CERTIFICATE_TAG = "DELETE FROM certificate_tag WHERE certificateId = ? AND tagId = ?";
     private static final String SQL_UPDATE_TAG = "UPDATE tag SET name=? WHERE id= ?";
     private static final String SQL_DELETE_TAG = "DELETE FROM tag WHERE id=?";
 
@@ -174,6 +175,28 @@ public class TagRepositoryImpl implements TagRepository {
         int result;
         try {
             try (PreparedStatement preparedStatement = connection.prepareStatement(SQL_INSERT_CONNECTION_CERTIFICATE_TAG, Statement.RETURN_GENERATED_KEYS)) {
+                preparedStatement.setLong(1, CertificateId);
+                preparedStatement.setLong(2, tagId);
+                result = preparedStatement.executeUpdate();
+                if (1 == result) {
+                    ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
+                    if (generatedKeys.next()) {
+                        return generatedKeys.getLong(1);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            logger.log(Level.ERROR, "Database exception during create Connection Between Tag And GiftCertificate", e);
+            throw new DaoException("Database exception during create Connection Between Tag And GiftCertificate", e);
+        }
+        return 0L;
+    }
+
+    @Override
+    public Long deleteConnectionBetweenTagAndGiftCertificate(Connection connection, Long tagId, Long CertificateId) {
+        int result;
+        try {
+            try (PreparedStatement preparedStatement = connection.prepareStatement(SQL_DELETE_CONNECTION_CERTIFICATE_TAG, Statement.RETURN_GENERATED_KEYS)) {
                 preparedStatement.setLong(1, CertificateId);
                 preparedStatement.setLong(2, tagId);
                 result = preparedStatement.executeUpdate();

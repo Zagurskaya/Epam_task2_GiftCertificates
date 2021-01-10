@@ -68,13 +68,24 @@ public interface TagRepository {
      * @throws DaoException database access error or other errors.
      */
     Tag findByName(Connection connection, String name) throws DaoException;
+
     /**
-     * Create Tag and connection with ПiftCertificate
+     * Create Tag and connection with GiftCertificate
      *
-     * @param tagId - Tag id
+     * @param tagId         - Tag id
      * @param CertificateId - GiftCertificate Id
      * @return true on successful creation
      * @throws DaoException database access error or other errors
      */
     Long createConnectionBetweenTagAndGiftCertificate(Connection connection, Long tagId, Long CertificateId);
+
+    /**
+     * Delete Tag connection with GiftCertificate
+     *
+     * @param tagId         - Tag id
+     * @param CertificateId - GiftCertificate Id
+     * @return true on successful creation
+     * @throws DaoException database access error or other errors
+     */
+    Long deleteConnectionBetweenTagAndGiftCertificate(Connection connection, Long tagId, Long CertificateId);
 }
