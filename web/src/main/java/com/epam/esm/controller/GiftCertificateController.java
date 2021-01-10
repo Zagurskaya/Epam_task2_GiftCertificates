@@ -31,9 +31,13 @@ public class GiftCertificateController {
     }
 
     @PostMapping(value = "/giftCertificate")
-    public Long createGiftCertificate(@RequestBody GiftCertificateDTO giftCertificate) throws ServiceException {
+    public ResponseEntity<Long> createGiftCertificate(@RequestBody GiftCertificateDTO giftCertificate) throws ServiceException {
+        GiftCertificateDTO giftCertificateByName = giftCertificateService.findByName(giftCertificate.getName());
+        if (giftCertificateByName != null) {
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
         Long id = giftCertificateService.create(giftCertificate);
-        return id;
+        return new ResponseEntity<>(id, HttpStatus.OK);
     }
 
     @PutMapping(value = "/giftCertificate/{id}")

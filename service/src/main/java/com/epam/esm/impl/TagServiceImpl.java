@@ -7,7 +7,6 @@ import com.epam.esm.converter.TagConverter;
 import com.epam.esm.exception.ServiceException;
 import com.epam.esm.model.Tag;
 import com.epam.esm.model.TagDTO;
-import com.epam.esm.impl.TagRepositoryImpl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +14,8 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TagServiceImpl implements TagService {
@@ -88,7 +87,7 @@ public class TagServiceImpl implements TagService {
             try {
                 connection.setAutoCommit(false);
                 List<Tag> tags = tagRepository.findAll(connection);
-                List<TagDTO> tagDTOs = getTagDTOs(tags);
+                List<TagDTO> tagDTOs = tags.stream().map(tagConverter::toDTO).collect(Collectors.toList());
                 connection.commit();
                 return tagDTOs;
             } catch (SQLException e) {
@@ -150,13 +149,6 @@ public class TagServiceImpl implements TagService {
         } catch (SQLException e) {
             logger.error(e.getMessage(), e);
             throw new ServiceException(CONNECTION_CLOSE_ERROR_MESSAGE, e);
-        }    }
-
-    private List<TagDTO> getTagDTOs(List<Tag> tags) {
-        List<TagDTO> tagDTOs = new ArrayList<>();
-        for (Tag tag : tags) {
-            tagDTOs.add(tagConverter.toDTO(tag));
         }
-        return tagDTOs;
     }
 }

@@ -48,4 +48,13 @@ public interface GiftCertificateService {
      * @return giftCertificateDTO List
      */
     List<GiftCertificateDTO> findAll() throws ServiceException;
+
+    /**
+     * Search GiftCertificateDTO by name
+     *
+     * @param name - GiftCertificate name
+     * @return GiftCertificateDTO
+     * @throws ServiceException error during execution of logical blocks and actions
+     */
+    GiftCertificateDTO findByName(String name) throws ServiceException;
 }

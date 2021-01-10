@@ -36,16 +36,16 @@ public class TagController {
         return id;
     }
 
-    @PutMapping(value = "/tag/{id}")
-    public ResponseEntity updateTag(@PathVariable("id") long id, @RequestBody TagDTO updateTag) throws ServiceException {
-        TagDTO tag = tagService.findById(id);
-        if (tag == null) {
-            return new ResponseEntity(HttpStatus.BAD_REQUEST);
-        }
-        tag.setName(updateTag.getName());
-        tagService.update(tag);
-        return new ResponseEntity(HttpStatus.OK);
-    }
+//    @PutMapping(value = "/tag/{id}")
+//    public ResponseEntity updateTag(@PathVariable("id") long id, @RequestBody TagDTO updateTag) throws ServiceException {
+//        TagDTO tag = tagService.findById(id);
+//        if (tag == null) {
+//            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+//        }
+//        tag.setName(updateTag.getName());
+//        tagService.update(tag);
+//        return new ResponseEntity(HttpStatus.OK);
+//    }
 
     @DeleteMapping(value = "/tag/{id}")
     public ResponseEntity deleteTag(@PathVariable("id") long id) throws ServiceException {
