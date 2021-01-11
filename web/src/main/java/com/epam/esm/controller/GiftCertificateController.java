@@ -3,6 +3,7 @@ package com.epam.esm.controller;
 import com.epam.esm.GiftCertificateService;
 import com.epam.esm.exception.ServiceException;
 import com.epam.esm.model.GiftCertificateDTO;
+import com.epam.esm.request.FilterForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -59,5 +60,14 @@ public class GiftCertificateController {
         }
         giftCertificateService.delete(id);
         return new ResponseEntity(HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/giftCertificate/filter")
+    public ResponseEntity<List<GiftCertificateDTO>> findAllGiftCertificatesByTagName(@RequestBody FilterForm form) throws ServiceException {
+        if (form.getTagName() == null) {
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+        List<GiftCertificateDTO> listGiftCertificateDTOByTagName = giftCertificateService.findAllGiftCertificateListByTagName(form.getTagName());
+        return new ResponseEntity<>(listGiftCertificateDTOByTagName, HttpStatus.OK);
     }
 }

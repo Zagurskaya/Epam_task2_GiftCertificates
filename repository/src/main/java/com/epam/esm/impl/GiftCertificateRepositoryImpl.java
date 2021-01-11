@@ -20,6 +20,14 @@ class GiftCertificateRepositoryImpl implements GiftCertificateRepository {
     private static final Logger logger = LogManager.getLogger(GiftCertificateRepositoryImpl.class);
 
     private static final String SQL_SELECT_ALL_GIFT_CERTIFICATES = "SELECT id, name, description, price, duration, creationDate, lastUpdateDate FROM giftCertificate ";
+    private static final String SQL_SELECT_ALL_GIFT_CERTIFICATES_BY_TAG_NAME =
+            "SELECT giftcertificate.id as id, giftcertificate.name as name, giftcertificate.description as description, giftcertificate.price as price, giftcertificate.duration as duration, giftcertificate.creationDate as creationDate,giftcertificate.lastUpdateDate as lastUpdateDate\n" +
+                    "FROM certificate_tag\n" +
+                    "LEFT JOIN giftcertificate\n" +
+                    "ON certificate_tag.certificateId = giftcertificate.id\n" +
+                    "LEFT JOIN tag\n" +
+                    "ON certificate_tag.tagId = tag.id\n" +
+                    "WHERE tag.name = ? ";
     private static final String SQL_SELECT_GIFT_CERTIFICATE_BY_ID = "SELECT id, name, description, price, duration, creationDate, lastUpdateDate FROM giftCertificate WHERE id= ? ";
     private static final String SQL_SELECT_GIFT_CERTIFICATE_BY_NAME = "SELECT id, name, description, price, duration, creationDate, lastUpdateDate FROM giftCertificate WHERE name = ? ";
     private static final String SQL_INSERT_GIFT_CERTIFICATE = "INSERT INTO giftCertificate(name, description, price, duration, creationDate, lastUpdateDate) VALUES (?, ?, ?, ?, ?, ?)";
@@ -183,4 +191,37 @@ class GiftCertificateRepositoryImpl implements GiftCertificateRepository {
         }
         return giftCertificate;
     }
+
+    @Override
+    public List<GiftCertificate> findAllByTagName(Connection connection, String tagName) {
+        List<GiftCertificate> giftCertificates = new ArrayList<>();
+        try {
+            try (PreparedStatement preparedStatement = connection.prepareStatement(SQL_SELECT_ALL_GIFT_CERTIFICATES_BY_TAG_NAME)) {
+                preparedStatement.setString(1, tagName);
+                ResultSet resultSet = preparedStatement.executeQuery();
+                while (resultSet.next()) {
+                    Long id = resultSet.getLong(ColumnName.GIFT_CERTIFICATE_ID);
+                    String name = resultSet.getString(ColumnName.GIFT_CERTIFICATE_NAME);
+                    String description = resultSet.getString(ColumnName.GIFT_CERTIFICATE_DESCRIPTION);
+                    BigDecimal price = resultSet.getBigDecimal(ColumnName.GIFT_CERTIFICATE_PRICE);
+                    Integer duration = resultSet.getInt(ColumnName.GIFT_CERTIFICATE_DURATION);
+                    LocalDateTime creationDate = resultSet.getObject(ColumnName.GIFT_CERTIFICATE_CREATION_DATE, LocalDateTime.class);
+                    LocalDateTime lastUpdateDate = resultSet.getObject(ColumnName.GIFT_CERTIFICATE_LAST_UPDATE_DATE, LocalDateTime.class);
+
+                    GiftCertificate giftCertificate = new GiftCertificate();
+                    giftCertificate.setId(id);
+                    giftCertificate.setName(name);
+                    giftCertificate.setDescription(description);
+                    giftCertificate.setDuration(duration);
+                    giftCertificate.setPrice(price);
+                    giftCertificate.setCreationDate(creationDate);
+                    giftCertificate.setLastUpdateDate(lastUpdateDate);
+                    giftCertificates.add(giftCertificate);
+                }
+            }
+        } catch (SQLException e) {
+            logger.log(Level.ERROR, "Database exception during fiend all giftCertificate", e);
+            throw new DaoException("Database exception during fiend all giftCertificate", e);
+        }
+        return giftCertificates;    }
 }

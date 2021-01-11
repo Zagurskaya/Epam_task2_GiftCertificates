@@ -263,4 +263,30 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
             throw new ServiceException(CONNECTION_CLOSE_ERROR_MESSAGE, e);
         }
     }
+
+    @Override
+    public List<GiftCertificateDTO> findAllGiftCertificateListByTagName(String tagName) {
+        try (Connection connection = connectionHandler.getConnection()) {
+            try {
+                connection.setAutoCommit(false);
+                List<GiftCertificate> giftCertificates = giftCertificateRepository.findAllByTagName(connection, tagName);
+                List<GiftCertificateDTO> giftCertificateDTOS = giftCertificates.stream()
+                        .map(giftCertificateConverter::toDTO).collect(Collectors.toList());
+                giftCertificateDTOS.forEach(giftCertificateDTO -> {
+                    List<Tag> tags = tagRepository.findListTagsByCertificateId(connection, giftCertificateDTO.getId());
+                    List<TagDTO> tagDTOList = tags.stream().map(tagConverter::toDTO).collect(Collectors.toList());
+                    giftCertificateDTO.setTags(tagDTOList);
+                });
+                connection.commit();
+                return giftCertificateDTOS;
+            } catch (SQLException e) {
+                connection.rollback();
+                logger.error(e.getMessage(), e);
+                throw new ServiceException(GIFT_CERTIFICATES_GETTING_ERROR_MESSAGE, e);
+            }
+        } catch (SQLException e) {
+            logger.error(e.getMessage(), e);
+            throw new ServiceException(CONNECTION_CLOSE_ERROR_MESSAGE, e);
+        }
+    }
 }

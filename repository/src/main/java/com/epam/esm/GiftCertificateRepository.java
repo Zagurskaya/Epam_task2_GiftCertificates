@@ -66,4 +66,13 @@ public interface GiftCertificateRepository {
      * @throws DaoException database access error or other errors.
      */
     GiftCertificate findByName(Connection connection, String name) throws DaoException;
+    /**
+     * GiftCertificates search by Tag name
+     *
+     * @param connection - Connection to BD
+     * @param tagName       - Tag name
+     * @return giftCertificate
+     * @throws DaoException database access error or other errors.
+     */
+    List<GiftCertificate> findAllByTagName(Connection connection, String tagName);
 }
