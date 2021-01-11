@@ -211,11 +211,6 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
                     List<TagDTO> addTagList = new ArrayList<>(tagDTOList);
                     addTagList.removeAll(createTagList);
-//                    List<TagDTO> listTest = new ArrayList<>();
-//                    for (Tag tag : oldTagList) {
-//                        TagDTO tagDTO = tagConverter.toDTO(tag);
-//                        listTest.add(tagDTO);
-//                    }
                     addTagList.removeAll(oldTagList.stream().map(tagConverter::toDTO).collect(Collectors.toList()));
 
                     for (TagDTO tagDTO : createTagList) {
