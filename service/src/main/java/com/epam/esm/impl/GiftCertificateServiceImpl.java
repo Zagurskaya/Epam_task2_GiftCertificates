@@ -251,6 +251,10 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                     connection.commit();
                     return result;
                 }
+                List<Tag> tagList = tagRepository.findListTagsByCertificateId(connection, giftCertificate.getId());
+                if (tagList != null && tagList.size() != 0) {
+                    tagList.forEach(tag -> tagRepository.deleteConnectionBetweenTagAndGiftCertificate(connection, tag.getId(), id));
+                }
                 result = giftCertificateRepository.delete(connection, id);
                 connection.commit();
                 return result;
