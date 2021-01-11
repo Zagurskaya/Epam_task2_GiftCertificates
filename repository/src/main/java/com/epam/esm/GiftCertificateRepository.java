@@ -10,6 +10,7 @@ public interface GiftCertificateRepository {
     /**
      * Get a list of GiftCertificates
      *
+     * @param connection - Connection to BD
      * @return list of GiftCertificates
      * @throws DaoException database access error or other errors.
      */
@@ -18,7 +19,8 @@ public interface GiftCertificateRepository {
     /**
      * GiftCertificate search by ID
      *
-     * @param id - ID
+     * @param connection - Connection to BD
+     * @param id         - ID
      * @return object
      * @throws DaoException database access error or other errors.
      */
@@ -27,6 +29,7 @@ public interface GiftCertificateRepository {
     /**
      * Create GiftCertificate
      *
+     * @param connection      - Connection to BD
      * @param giftCertificate - GiftCertificate
      * @return true on successful creation
      * @throws DaoException database access error or other errors
@@ -36,6 +39,7 @@ public interface GiftCertificateRepository {
     /**
      * Update GiftCertificate
      *
+     * @param connection      - Connection to BD
      * @param giftCertificate - GiftCertificate
      * @return true on successful change
      * @throws DaoException database access error or other errors
@@ -45,7 +49,8 @@ public interface GiftCertificateRepository {
     /**
      * Delete giftCertificate
      *
-     * @param id - giftCertificate id
+     * @param connection - Connection to BD
+     * @param id         - giftCertificate id
      * @return true on successful delete
      * @throws DaoException database access error or other errors.
      */
@@ -55,7 +60,8 @@ public interface GiftCertificateRepository {
     /**
      * GiftCertificate search by name
      *
-     * @param name - giftCertificate name
+     * @param connection - Connection to BD
+     * @param name       - giftCertificate name
      * @return giftCertificate
      * @throws DaoException database access error or other errors.
      */

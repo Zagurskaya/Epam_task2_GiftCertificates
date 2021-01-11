@@ -25,15 +25,6 @@ public interface TagService {
     Long create(TagDTO tagDTO) throws ServiceException;
 
     /**
-     * Update TagDTO
-     *
-     * @param tagDTO - TagDTO
-     * @return true on successful update
-     * @throws ServiceException error during execution of logical blocks and actions
-     */
-    boolean update(TagDTO tagDTO) throws ServiceException;
-
-    /**
      * Delete TagDTO
      *
      * @param id - TagDTO id

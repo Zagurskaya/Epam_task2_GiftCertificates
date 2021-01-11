@@ -28,18 +28,17 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     private static final String GIFT_CERTIFICATE_ADDING_ERROR_MESSAGE = "Error while adding GiftCertificate.";
     private static final String GIFT_CERTIFICATES_GETTING_ERROR_MESSAGE = "Error while getting GiftCertificates list.";
-    private static final String GIFT_CERTIFICATE_UPDATING_ERROR_MESSAGE = "Error while updating GiftCertificate.";
     private static final String GIFT_CERTIFICATE_TAGS_UPDATING_ERROR_MESSAGE = "Error while updating GiftCertificate and tag list.";
     private static final String GIFT_CERTIFICATE_DELETING_ERROR_MESSAGE = "Error while deleting GiftCertificate.";
     private static final String CONNECTION_CLOSE_ERROR_MESSAGE = "Error while closing connection.";
 
     private static final Logger logger = LogManager.getLogger(GiftCertificateRepositoryImpl.class);
 
-    private GiftCertificateRepository giftCertificateRepository;
-    private GiftCertificateConverter giftCertificateConverter;
-    private TagRepository tagRepository;
-    private TagConverter tagConverter;
-    private ConnectionHandler connectionHandler;
+    private final GiftCertificateRepository giftCertificateRepository;
+    private final GiftCertificateConverter giftCertificateConverter;
+    private final TagRepository tagRepository;
+    private final TagConverter tagConverter;
+    private final ConnectionHandler connectionHandler;
 
     @Autowired
     public GiftCertificateServiceImpl(
@@ -58,7 +57,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Override
     public GiftCertificateDTO findById(Long id) throws ServiceException {
-        GiftCertificateDTO giftCertificateDTO = null;
+        GiftCertificateDTO giftCertificateDTO;
         try (Connection connection = connectionHandler.getConnection()) {
             try {
                 connection.setAutoCommit(false);
@@ -120,7 +119,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                 connection.setAutoCommit(false);
                 List<GiftCertificate> giftCertificates = giftCertificateRepository.findAll(connection);
                 List<GiftCertificateDTO> giftCertificateDTOS = giftCertificates.stream()
-                        .map(giftCertificate -> giftCertificateConverter.toDTO(giftCertificate)).collect(Collectors.toList());
+                        .map(giftCertificateConverter::toDTO).collect(Collectors.toList());
                 giftCertificateDTOS.forEach(giftCertificateDTO -> {
                     List<Tag> tags = tagRepository.findListTagsByCertificateId(connection, giftCertificateDTO.getId());
                     List<TagDTO> tagDTOList = tags.stream().map(tagConverter::toDTO).collect(Collectors.toList());
@@ -167,14 +166,14 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Override
     public boolean update(GiftCertificateDTO giftCertificateDTO) {
-        boolean result = false;
+        boolean result;
         try (Connection connection = connectionHandler.getConnection()) {
             try {
                 connection.setAutoCommit(false);
                 GiftCertificate giftCertificate = giftCertificateRepository.findById(connection, giftCertificateDTO.getId());
                 if (giftCertificate == null) {
                     connection.commit();
-                    return result;
+                    return false;
                 }
                 if (giftCertificateDTO.getName() != null) {
                     giftCertificate.setName(giftCertificateDTO.getName());
@@ -193,12 +192,12 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
                 List<TagDTO> tagDTOList = giftCertificateDTO.getTags();
                 if (tagDTOList != null && tagDTOList.size() != 0) {
-                    List<Long> tagIdList = tagDTOList.stream().map(task -> task.getId()).collect(Collectors.toList());
+                    List<Long> tagIdList = tagDTOList.stream().map(TagDTO::getId).collect(Collectors.toList());
                     List<Tag> oldTagList = tagRepository.findListTagsByCertificateId(connection, giftCertificate.getId());
-                    List<Long> oldTagIdList = oldTagList.stream().map(task -> task.getId()).collect(Collectors.toList());
+                    List<Long> oldTagIdList = oldTagList.stream().map(Tag::getId).collect(Collectors.toList());
 
                     List<TagDTO> updateTagDTOList = tagDTOList.stream().filter(task -> task.getId() != null).collect(Collectors.toList());
-                    List<Long> idListUpdateTagDTOList = updateTagDTOList.stream().map(task -> task.getId()).collect(Collectors.toList());
+                    List<Long> idListUpdateTagDTOList = updateTagDTOList.stream().map(TagDTO::getId).collect(Collectors.toList());
 
                     List<TagDTO> createTagList = tagDTOList.stream().filter(task -> task.getId() == null).collect(Collectors.toList());
 
@@ -219,13 +218,9 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                         Long newTagId = tagRepository.create(connection, newTag);
                         tagRepository.createConnectionBetweenTagAndGiftCertificate(connection, newTagId, giftCertificate.getId());
                     }
-                    addTagList.forEach(tagDTO -> {
-                        tagRepository.createConnectionBetweenTagAndGiftCertificate(connection, tagDTO.getId(), giftCertificate.getId());
-                    });
+                    addTagList.forEach(tagDTO -> tagRepository.createConnectionBetweenTagAndGiftCertificate(connection, tagDTO.getId(), giftCertificate.getId()));
 
-                    deleteTagIdList.forEach(id -> {
-                        tagRepository.deleteConnectionBetweenTagAndGiftCertificate(connection, id, giftCertificate.getId());
-                    });
+                    deleteTagIdList.forEach(id -> tagRepository.deleteConnectionBetweenTagAndGiftCertificate(connection, id, giftCertificate.getId()));
                 }
                 connection.commit();
                 return result;
@@ -242,14 +237,14 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Override
     public boolean delete(Long id) throws ServiceException {
-        boolean result = false;
+        boolean result;
         try (Connection connection = connectionHandler.getConnection()) {
             try {
                 connection.setAutoCommit(false);
                 GiftCertificate giftCertificate = giftCertificateRepository.findById(connection, id);
                 if (giftCertificate == null) {
                     connection.commit();
-                    return result;
+                    return false;
                 }
                 List<Tag> tagList = tagRepository.findListTagsByCertificateId(connection, giftCertificate.getId());
                 if (tagList != null && tagList.size() != 0) {

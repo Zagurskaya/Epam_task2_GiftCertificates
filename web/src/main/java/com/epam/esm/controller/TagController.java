@@ -13,10 +13,10 @@ import java.util.List;
 @RestController
 public class TagController {
 
-    private TagService tagService;
+    private final TagService tagService;
 
     @Autowired
-    public void setTagService(TagService tagService) {
+    public TagController(TagService tagService) {
         this.tagService = tagService;
     }
 
@@ -32,20 +32,8 @@ public class TagController {
 
     @PostMapping(value = "/tag")
     public Long createTag(@RequestBody TagDTO tag) throws ServiceException {
-        Long id = tagService.create(tag);
-        return id;
+        return tagService.create(tag);
     }
-
-//    @PutMapping(value = "/tag/{id}")
-//    public ResponseEntity updateTag(@PathVariable("id") long id, @RequestBody TagDTO updateTag) throws ServiceException {
-//        TagDTO tag = tagService.findById(id);
-//        if (tag == null) {
-//            return new ResponseEntity(HttpStatus.BAD_REQUEST);
-//        }
-//        tag.setName(updateTag.getName());
-//        tagService.update(tag);
-//        return new ResponseEntity(HttpStatus.OK);
-//    }
 
     @DeleteMapping(value = "/tag/{id}")
     public ResponseEntity deleteTag(@PathVariable("id") long id) throws ServiceException {

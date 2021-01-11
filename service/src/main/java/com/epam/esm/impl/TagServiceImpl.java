@@ -27,9 +27,9 @@ public class TagServiceImpl implements TagService {
 
     private static final Logger logger = LogManager.getLogger(TagRepositoryImpl.class);
 
-    private TagRepository tagRepository;
-    private TagConverter tagConverter;
-    private ConnectionHandler connectionHandler;
+    private final TagRepository tagRepository;
+    private final TagConverter tagConverter;
+    private final ConnectionHandler connectionHandler;
 
     @Autowired
     public TagServiceImpl(
@@ -94,32 +94,6 @@ public class TagServiceImpl implements TagService {
                 connection.rollback();
                 logger.error(e.getMessage(), e);
                 throw new ServiceException(TAGS_GETTING_ERROR_MESSAGE, e);
-            }
-        } catch (SQLException e) {
-            logger.error(e.getMessage(), e);
-            throw new ServiceException(CONNECTION_CLOSE_ERROR_MESSAGE, e);
-        }
-    }
-
-    @Override
-    public boolean update(TagDTO tagDTO) {
-        boolean result = false;
-        try (Connection connection = connectionHandler.getConnection()) {
-            try {
-                connection.setAutoCommit(false);
-                Tag tag = tagRepository.findById(connection, tagDTO.getId());
-                if (tag == null) {
-                    connection.commit();
-                    return result;
-                }
-                tag.setName(tagDTO.getName());
-                result = tagRepository.update(connection, tag);
-                connection.commit();
-                return result;
-            } catch (SQLException e) {
-                connection.rollback();
-                logger.error(e.getMessage(), e);
-                throw new ServiceException(TAG_UPDATING_ERROR_MESSAGE, e);
             }
         } catch (SQLException e) {
             logger.error(e.getMessage(), e);

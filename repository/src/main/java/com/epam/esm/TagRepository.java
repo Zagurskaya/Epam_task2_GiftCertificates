@@ -10,6 +10,7 @@ public interface TagRepository {
     /**
      * Get a list of Tags
      *
+     * @param connection - Connection to BD
      * @return list of Tags
      * @throws DaoException database access error or other errors.
      */
@@ -18,7 +19,8 @@ public interface TagRepository {
     /**
      * Tag search by ID
      *
-     * @param id - ID
+     * @param connection - Connection to BD
+     * @param id         - ID
      * @return object
      * @throws DaoException database access error or other errors.
      */
@@ -27,7 +29,8 @@ public interface TagRepository {
     /**
      * Create Tag
      *
-     * @param tag - Tag
+     * @param connection - Connection to BD
+     * @param tag        - Tag
      * @return true on successful creation
      * @throws DaoException database access error or other errors
      */
@@ -36,7 +39,8 @@ public interface TagRepository {
     /**
      * Update Tag
      *
-     * @param tag - Tag
+     * @param connection - Connection to BD
+     * @param tag        - Tag
      * @return true on successful change
      * @throws DaoException database access error or other errors
      */
@@ -45,7 +49,8 @@ public interface TagRepository {
     /**
      * Delete tag
      *
-     * @param id - tag id
+     * @param connection - Connection to BD
+     * @param id         - tag id
      * @return true on successful delete
      * @throws DaoException database access error or other errors.
      */
@@ -54,6 +59,7 @@ public interface TagRepository {
     /**
      * Get a list of Tags by GiftCertificateId
      *
+     * @param connection - Connection to BD
      * @return list of Tags
      * @throws DaoException database access error or other errors.
      */
@@ -63,7 +69,8 @@ public interface TagRepository {
     /**
      * Tag search by name
      *
-     * @param name - tag name
+     * @param connection - Connection to BD
+     * @param name       - tag name
      * @return tag
      * @throws DaoException database access error or other errors.
      */
@@ -72,9 +79,9 @@ public interface TagRepository {
     /**
      * Create Tag and connection with GiftCertificate
      *
+     * @param connection    - Connection to BD
      * @param tagId         - Tag id
      * @param CertificateId - GiftCertificate Id
-     * @return true on successful creation
      * @throws DaoException database access error or other errors
      */
     Long createConnectionBetweenTagAndGiftCertificate(Connection connection, Long tagId, Long CertificateId);
@@ -82,6 +89,7 @@ public interface TagRepository {
     /**
      * Delete Tag connection with GiftCertificate
      *
+     * @param connection    - Connection to BD
      * @param tagId         - Tag id
      * @param CertificateId - GiftCertificate Id
      * @return true on successful creation

@@ -13,10 +13,10 @@ import java.util.List;
 @RestController
 public class GiftCertificateController {
 
-    private GiftCertificateService giftCertificateService;
+    private final GiftCertificateService giftCertificateService;
 
     @Autowired
-    public void setGiftCertificateService(GiftCertificateService giftCertificateService) {
+    public GiftCertificateController(GiftCertificateService giftCertificateService) {
         this.giftCertificateService = giftCertificateService;
     }
 
