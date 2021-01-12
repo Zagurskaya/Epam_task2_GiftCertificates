@@ -1,8 +1,6 @@
 package com.epam.esm.model;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 /**
  * Tag with characteristics <b>id</b>, <b>name</b>.
@@ -10,6 +8,8 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
+@AllArgsConstructor
+@NoArgsConstructor
 public class Tag {
     /**
      * Identifier
