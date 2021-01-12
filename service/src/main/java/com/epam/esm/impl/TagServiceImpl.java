@@ -2,7 +2,6 @@ package com.epam.esm.impl;
 
 import com.epam.esm.TagRepository;
 import com.epam.esm.TagService;
-import com.epam.esm.TagTestRepository;
 import com.epam.esm.connection.ConnectionHandler;
 import com.epam.esm.converter.TagConverter;
 import com.epam.esm.model.Tag;
@@ -17,49 +16,46 @@ import java.util.stream.Collectors;
 public class TagServiceImpl implements TagService {
 
     private final TagRepository tagRepository;
-    private final TagTestRepository tagTestRepository;
     private final TagConverter tagConverter;
     private final ConnectionHandler connectionHandler;
 
     @Autowired
     public TagServiceImpl(
             TagRepository tagRepository,
-            TagTestRepository tagTestRepository,
             TagConverter tagConverter,
             ConnectionHandler connectionHandler
     ) {
         this.tagRepository = tagRepository;
-        this.tagTestRepository = tagTestRepository;
         this.tagConverter = tagConverter;
         this.connectionHandler = connectionHandler;
     }
 
     @Override
     public TagDTO findById(Long id) {
-        Tag tag = tagTestRepository.findById(id);
+        Tag tag = tagRepository.findById(id);
         return tagConverter.toDTO(tag);
     }
 
     @Override
     public Long create(TagDTO tagDTO) {
         Tag tag = tagConverter.toEntity(tagDTO);
-        Long id = tagTestRepository.create(tag);
+        Long id = tagRepository.create(tag);
         return id;
     }
 
     @Override
     public List<TagDTO> findAll() {
-        List<Tag> tags = tagTestRepository.findAll();
+        List<Tag> tags = tagRepository.findAll();
         List<TagDTO> tagDTOs = tags.stream().map(tagConverter::toDTO).collect(Collectors.toList());
         return tagDTOs;
     }
 
     @Override
     public boolean delete(Long id) {
-        Tag tag = tagTestRepository.findById(id);
+        Tag tag = tagRepository.findById(id);
         if (tag == null) {
             return false;
         }
-        return tagTestRepository.delete(id);
+        return tagRepository.delete(id);
     }
 }

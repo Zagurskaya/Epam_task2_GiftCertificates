@@ -1,21 +1,22 @@
 package com.epam.esm.impl;
 
 import com.epam.esm.TagRepository;
-import com.epam.esm.exception.DaoException;
 import com.epam.esm.model.Tag;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import com.epam.esm.rowmapper.TagRowMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import java.sql.*;
-import java.util.ArrayList;
+import javax.sql.DataSource;
+import java.sql.PreparedStatement;
 import java.util.List;
 
 @Repository
 public class TagRepositoryImpl implements TagRepository {
 
-    private static final Logger logger = LogManager.getLogger(TagRepositoryImpl.class);
+    JdbcTemplate jdbcTemplate;
 
     private static final String SQL_SELECT_ALL_TAGS = "SELECT id, name FROM tag ";
     private static final String SQL_SELECT_TAG_BY_ID = "SELECT id, name FROM tag WHERE id= ? ";
@@ -28,189 +29,76 @@ public class TagRepositoryImpl implements TagRepository {
     private static final String SQL_INSERT_TAG = "INSERT INTO tag(name) VALUES (?)";
     private static final String SQL_INSERT_CONNECTION_CERTIFICATE_TAG = "INSERT INTO certificate_tag(certificateId, tagId) VALUES (?, ?)";
     private static final String SQL_DELETE_CONNECTION_CERTIFICATE_TAG = "DELETE FROM certificate_tag WHERE certificateId = ? AND tagId = ?";
-    private static final String SQL_UPDATE_TAG = "UPDATE tag SET name=? WHERE id= ?";
     private static final String SQL_DELETE_TAG = "DELETE FROM tag WHERE id=?";
 
-    @Override
-    public Tag findById(Connection connection, Long id) throws DaoException {
-        Tag tag = null;
-        try {
-            try (PreparedStatement preparedStatement = connection.prepareStatement(SQL_SELECT_TAG_BY_ID)) {
-                preparedStatement.setLong(1, id);
-                ResultSet resultSet = preparedStatement.executeQuery();
-                while (resultSet.next()) {
-                    String name = resultSet.getString(ColumnName.TAG_NAME);
-                    tag = new Tag();
-                    tag.setId(id);
-                    tag.setName(name);
-                }
-            }
-        } catch (SQLException e) {
-            logger.log(Level.ERROR, "Database exception during fiend tag by id", e);
-            throw new DaoException("Database exception during fiend tag by id", e);
-        }
-        return tag;
+    @Autowired
+    public TagRepositoryImpl(DataSource dataSource) {
+        jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
     @Override
-    public Long create(Connection connection, Tag tag) throws DaoException {
-        int result;
-        try {
-            try (PreparedStatement preparedStatement = connection.prepareStatement(SQL_INSERT_TAG, Statement.RETURN_GENERATED_KEYS)) {
-                preparedStatement.setString(1, tag.getName());
-                result = preparedStatement.executeUpdate();
-                if (1 == result) {
-                    ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
-                    if (generatedKeys.next()) {
-                        return generatedKeys.getLong(1);
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            logger.log(Level.ERROR, "Database exception during create tag", e);
-            throw new DaoException("Database exception during create tag", e);
-        }
-        return 0L;
+    public List<Tag> findAll() {
+        List<Tag> result = jdbcTemplate.query(SQL_SELECT_ALL_TAGS, new TagRowMapper());
+        return result;
     }
 
     @Override
-    public boolean update(Connection connection, Tag tag) throws DaoException {
-        int result;
-        try {
-            try (PreparedStatement preparedStatement = connection.prepareStatement(SQL_UPDATE_TAG)) {
-                preparedStatement.setString(1, tag.getName());
-                preparedStatement.setLong(2, tag.getId());
-                result = preparedStatement.executeUpdate();
-            }
-        } catch (SQLException e) {
-            logger.log(Level.ERROR, "Database exception during update tag", e);
-            throw new DaoException("Database exception during update tag ", e);
-        }
-        return 1 == result;
+    public Tag findById(Long id) {
+        return jdbcTemplate.queryForObject(SQL_SELECT_TAG_BY_ID, new TagRowMapper(), id);
     }
 
     @Override
-    public boolean delete(Connection connection, Long id) throws DaoException {
-        int result;
-        try {
-            try (PreparedStatement preparedStatement = connection.prepareStatement(SQL_DELETE_TAG)) {
-                preparedStatement.setLong(1, id);
-                result = preparedStatement.executeUpdate();
-            }
-        } catch (SQLException e) {
-            logger.log(Level.ERROR, "Database exception during delete tag", e);
-            throw new DaoException("Database exception during delete tag ", e);
-        }
-        return 1 == result;
+    public Long create(Tag tag) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(
+                connection -> {
+                    PreparedStatement ps = connection.prepareStatement(SQL_INSERT_TAG, new String[]{"id"});
+                    ps.setString(1, tag.getName());
+                    return ps;
+                },
+                keyHolder);
+        return keyHolder.getKey().longValue();
     }
 
     @Override
-    public List<Tag> findListTagsByCertificateId(Connection connection, Long certificateId) throws DaoException {
-        List<Tag> tags = new ArrayList<>();
-        try {
-            try (PreparedStatement preparedStatement = connection.prepareStatement(SQL_SELECT_TAG_BY_GIFT_CERTIFICATE_ID)) {
-                preparedStatement.setLong(1, certificateId);
-                ResultSet resultSet = preparedStatement.executeQuery();
-                while (resultSet.next()) {
-                    Long id = resultSet.getLong(ColumnName.TAG_ID);
-                    String name = resultSet.getString(ColumnName.TAG_NAME);
-                    Tag tag = new Tag();
-                    tag.setId(id);
-                    tag.setName(name);
-                    tags.add(tag);
-                }
-            }
-        } catch (SQLException e) {
-            logger.log(Level.ERROR, "Database exception during find List Tag By Certificate Id", e);
-            throw new DaoException("Database exception during find List Tag By Certificate Id", e);
-        }
-        return tags;
+    public boolean delete(Long id) {
+        return 1 == jdbcTemplate.update(SQL_DELETE_TAG, id);
     }
 
     @Override
-    public List<Tag> findAll(Connection connection) throws DaoException {
-        List<Tag> tags = new ArrayList<>();
-        try {
-            try (PreparedStatement preparedStatement = connection.prepareStatement(SQL_SELECT_ALL_TAGS)) {
-                ResultSet resultSet = preparedStatement.executeQuery();
-                while (resultSet.next()) {
-                    Long id = resultSet.getLong(ColumnName.TAG_ID);
-                    String name = resultSet.getString(ColumnName.TAG_NAME);
-                    Tag tag = new Tag();
-                    tag.setId(id);
-                    tag.setName(name);
-                    tags.add(tag);
-                }
-            }
-        } catch (SQLException e) {
-            logger.log(Level.ERROR, "Database exception during fiend all tag", e);
-            throw new DaoException("Database exception during fiend all tag", e);
-        }
-        return tags;
+    public List<Tag> findListTagsByCertificateId(Long certificateId) {
+        return jdbcTemplate.query(SQL_SELECT_TAG_BY_GIFT_CERTIFICATE_ID, new TagRowMapper(), certificateId);
     }
 
     @Override
-    public Tag findByName(Connection connection, String name) throws DaoException {
-        Tag tag = null;
-        try {
-            try (PreparedStatement preparedStatement = connection.prepareStatement(SQL_SELECT_TAG_BY_NAME)) {
-                preparedStatement.setString(1, name);
-                ResultSet resultSet = preparedStatement.executeQuery();
-                while (resultSet.next()) {
-                    Long id = resultSet.getLong(ColumnName.TAG_ID);
-                    tag = new Tag();
-                    tag.setId(id);
-                    tag.setName(name);
-                }
-            }
-        } catch (SQLException e) {
-            logger.log(Level.ERROR, "Database exception during fiend tag by name", e);
-            throw new DaoException("Database exception during fiend tag by name", e);
-        }
-        return tag;
+    public Tag findByName(String name) {
+        return jdbcTemplate.queryForObject(SQL_SELECT_TAG_BY_NAME, new TagRowMapper(), name);    }
+
+    @Override
+    public Long createConnectionBetweenTagAndGiftCertificate(Long tagId, Long CertificateId) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(
+                connection -> {
+                    PreparedStatement ps = connection.prepareStatement(SQL_INSERT_CONNECTION_CERTIFICATE_TAG, new String[]{"id"});
+                    ps.setLong(1, CertificateId);
+                    ps.setLong(2, tagId);
+                    return ps;
+                },
+                keyHolder);
+        return keyHolder.getKey().longValue();
     }
 
     @Override
-    public Long createConnectionBetweenTagAndGiftCertificate(Connection connection, Long tagId, Long CertificateId) {
-        int result;
-        try {
-            try (PreparedStatement preparedStatement = connection.prepareStatement(SQL_INSERT_CONNECTION_CERTIFICATE_TAG, Statement.RETURN_GENERATED_KEYS)) {
-                preparedStatement.setLong(1, CertificateId);
-                preparedStatement.setLong(2, tagId);
-                result = preparedStatement.executeUpdate();
-                if (1 == result) {
-                    ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
-                    if (generatedKeys.next()) {
-                        return generatedKeys.getLong(1);
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            logger.log(Level.ERROR, "Database exception during create Connection Between Tag And GiftCertificate", e);
-            throw new DaoException("Database exception during create Connection Between Tag And GiftCertificate", e);
-        }
-        return 0L;
-    }
-
-    @Override
-    public Long deleteConnectionBetweenTagAndGiftCertificate(Connection connection, Long tagId, Long CertificateId) {
-        int result;
-        try {
-            try (PreparedStatement preparedStatement = connection.prepareStatement(SQL_DELETE_CONNECTION_CERTIFICATE_TAG, Statement.RETURN_GENERATED_KEYS)) {
-                preparedStatement.setLong(1, CertificateId);
-                preparedStatement.setLong(2, tagId);
-                result = preparedStatement.executeUpdate();
-                if (1 == result) {
-                    ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
-                    if (generatedKeys.next()) {
-                        return generatedKeys.getLong(1);
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            logger.log(Level.ERROR, "Database exception during create Connection Between Tag And GiftCertificate", e);
-            throw new DaoException("Database exception during create Connection Between Tag And GiftCertificate", e);
-        }
-        return 0L;
+    public Long deleteConnectionBetweenTagAndGiftCertificate(Long tagId, Long CertificateId) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(
+                connection -> {
+                    PreparedStatement ps = connection.prepareStatement(SQL_DELETE_CONNECTION_CERTIFICATE_TAG, new String[]{"id"});
+                    ps.setLong(1, CertificateId);
+                    ps.setLong(2, tagId);
+                    return ps;
+                },
+                keyHolder);
+        return keyHolder.getKey().longValue();
     }
 }

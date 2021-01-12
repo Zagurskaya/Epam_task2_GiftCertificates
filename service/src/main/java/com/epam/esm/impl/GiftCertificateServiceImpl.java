@@ -62,7 +62,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
             try {
                 connection.setAutoCommit(false);
                 GiftCertificate giftCertificate = giftCertificateRepository.findById(connection, id);
-                List<Tag> tags = tagRepository.findListTagsByCertificateId(connection, id);
+                List<Tag> tags = tagRepository.findListTagsByCertificateId(id);
 
                 giftCertificateDTO = giftCertificateConverter.toDTO(giftCertificate);
                 List<TagDTO> tagDTOList = tags.stream().map(tagConverter::toDTO).collect(Collectors.toList());
@@ -90,12 +90,12 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                 List<TagDTO> tagDTOList = giftCertificateDTO.getTags();
                 if (tagDTOList != null && tagDTOList.size() != 0) {
                     tagDTOList.forEach(tagDTO -> {
-                        Tag tagByName = tagRepository.findByName(connection, tagDTO.getName());
+                        Tag tagByName = tagRepository.findByName(tagDTO.getName());
                         if (tagByName == null) {
-                            Long tagId = tagRepository.create(connection, tagConverter.toEntity(tagDTO));
-                            tagRepository.createConnectionBetweenTagAndGiftCertificate(connection, tagId, id);
+                            Long tagId = tagRepository.create(tagConverter.toEntity(tagDTO));
+                            tagRepository.createConnectionBetweenTagAndGiftCertificate(tagId, id);
                         } else {
-                            tagRepository.createConnectionBetweenTagAndGiftCertificate(connection, tagByName.getId(), id);
+                            tagRepository.createConnectionBetweenTagAndGiftCertificate(tagByName.getId(), id);
                         }
                     });
                 }
@@ -121,7 +121,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                 List<GiftCertificateDTO> giftCertificateDTOS = giftCertificates.stream()
                         .map(giftCertificateConverter::toDTO).collect(Collectors.toList());
                 giftCertificateDTOS.forEach(giftCertificateDTO -> {
-                    List<Tag> tags = tagRepository.findListTagsByCertificateId(connection, giftCertificateDTO.getId());
+                    List<Tag> tags = tagRepository.findListTagsByCertificateId(giftCertificateDTO.getId());
                     List<TagDTO> tagDTOList = tags.stream().map(tagConverter::toDTO).collect(Collectors.toList());
                     giftCertificateDTO.setTags(tagDTOList);
                 });
@@ -146,7 +146,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                 connection.setAutoCommit(false);
                 GiftCertificate giftCertificate = giftCertificateRepository.findByName(connection, name);
                 if (giftCertificate != null) {
-                    List<Tag> tags = tagRepository.findListTagsByCertificateId(connection, giftCertificate.getId());
+                    List<Tag> tags = tagRepository.findListTagsByCertificateId(giftCertificate.getId());
                     giftCertificateDTO = giftCertificateConverter.toDTO(giftCertificate);
                     List<TagDTO> tagDTOList = tags.stream().map(tagConverter::toDTO).collect(Collectors.toList());
                     giftCertificateDTO.setTags(tagDTOList);
@@ -193,7 +193,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                 List<TagDTO> tagDTOList = giftCertificateDTO.getTags();
                 if (tagDTOList != null && tagDTOList.size() != 0) {
                     List<Long> tagIdList = tagDTOList.stream().map(TagDTO::getId).collect(Collectors.toList());
-                    List<Tag> oldTagList = tagRepository.findListTagsByCertificateId(connection, giftCertificate.getId());
+                    List<Tag> oldTagList = tagRepository.findListTagsByCertificateId(giftCertificate.getId());
                     List<Long> oldTagIdList = oldTagList.stream().map(Tag::getId).collect(Collectors.toList());
 
                     List<TagDTO> updateTagDTOList = tagDTOList.stream().filter(task -> task.getId() != null).collect(Collectors.toList());
@@ -215,12 +215,12 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                     for (TagDTO tagDTO : createTagList) {
                         Tag newTag = new Tag();
                         newTag.setName(tagDTO.getName());
-                        Long newTagId = tagRepository.create(connection, newTag);
-                        tagRepository.createConnectionBetweenTagAndGiftCertificate(connection, newTagId, giftCertificate.getId());
+                        Long newTagId = tagRepository.create(newTag);
+                        tagRepository.createConnectionBetweenTagAndGiftCertificate(newTagId, giftCertificate.getId());
                     }
-                    addTagList.forEach(tagDTO -> tagRepository.createConnectionBetweenTagAndGiftCertificate(connection, tagDTO.getId(), giftCertificate.getId()));
+                    addTagList.forEach(tagDTO -> tagRepository.createConnectionBetweenTagAndGiftCertificate(tagDTO.getId(), giftCertificate.getId()));
 
-                    deleteTagIdList.forEach(id -> tagRepository.deleteConnectionBetweenTagAndGiftCertificate(connection, id, giftCertificate.getId()));
+                    deleteTagIdList.forEach(id -> tagRepository.deleteConnectionBetweenTagAndGiftCertificate(id, giftCertificate.getId()));
                 }
                 connection.commit();
                 return result;
@@ -246,9 +246,9 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                     connection.commit();
                     return false;
                 }
-                List<Tag> tagList = tagRepository.findListTagsByCertificateId(connection, giftCertificate.getId());
+                List<Tag> tagList = tagRepository.findListTagsByCertificateId(giftCertificate.getId());
                 if (tagList != null && tagList.size() != 0) {
-                    tagList.forEach(tag -> tagRepository.deleteConnectionBetweenTagAndGiftCertificate(connection, tag.getId(), id));
+                    tagList.forEach(tag -> tagRepository.deleteConnectionBetweenTagAndGiftCertificate(tag.getId(), id));
                 }
                 result = giftCertificateRepository.delete(connection, id);
                 connection.commit();
@@ -273,7 +273,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                 List<GiftCertificateDTO> giftCertificateDTOS = giftCertificates.stream()
                         .map(giftCertificateConverter::toDTO).collect(Collectors.toList());
                 giftCertificateDTOS.forEach(giftCertificateDTO -> {
-                    List<Tag> tags = tagRepository.findListTagsByCertificateId(connection, giftCertificateDTO.getId());
+                    List<Tag> tags = tagRepository.findListTagsByCertificateId(giftCertificateDTO.getId());
                     List<TagDTO> tagDTOList = tags.stream().map(tagConverter::toDTO).collect(Collectors.toList());
                     giftCertificateDTO.setTags(tagDTOList);
                 });
