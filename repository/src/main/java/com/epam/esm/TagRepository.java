@@ -71,5 +71,5 @@ public interface TagRepository {
      * @param CertificateId - GiftCertificate Id
      * @return true on successful creation
      */
-    Long deleteConnectionBetweenTagAndGiftCertificate(Long tagId, Long CertificateId);
+    boolean deleteConnectionBetweenTagAndGiftCertificate(Long tagId, Long CertificateId);
 }

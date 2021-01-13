@@ -1,8 +1,6 @@
 package com.epam.esm.model;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -13,6 +11,8 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @ToString
+@AllArgsConstructor
+@NoArgsConstructor
 public class GiftCertificate {
     /**
      * Identifier
@@ -42,4 +42,7 @@ public class GiftCertificate {
      * Last update date
      */
     private LocalDateTime lastUpdateDate;
+
+    public GiftCertificate(long aLong, String string, BigDecimal bigDecimal, int anInt, LocalDateTime object, LocalDateTime object1) {
+    }
 }

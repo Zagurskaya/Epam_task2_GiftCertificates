@@ -44,7 +44,8 @@ public class TagRepositoryImpl implements TagRepository {
 
     @Override
     public Tag findById(Long id) {
-        return jdbcTemplate.queryForObject(SQL_SELECT_TAG_BY_ID, new TagRowMapper(), id);
+        List<Tag> result = jdbcTemplate.query(SQL_SELECT_TAG_BY_ID, new TagRowMapper(), id);
+        return result.isEmpty() ? null : result.get(0);
     }
 
     @Override
@@ -72,7 +73,9 @@ public class TagRepositoryImpl implements TagRepository {
 
     @Override
     public Tag findByName(String name) {
-        return jdbcTemplate.queryForObject(SQL_SELECT_TAG_BY_NAME, new TagRowMapper(), name);    }
+        List<Tag> tags = jdbcTemplate.query(SQL_SELECT_TAG_BY_NAME, new TagRowMapper(), name);
+        return tags.isEmpty() ? null : tags.get(0);
+    }
 
     @Override
     public Long createConnectionBetweenTagAndGiftCertificate(Long tagId, Long CertificateId) {
@@ -89,16 +92,13 @@ public class TagRepositoryImpl implements TagRepository {
     }
 
     @Override
-    public Long deleteConnectionBetweenTagAndGiftCertificate(Long tagId, Long CertificateId) {
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(
+    public boolean deleteConnectionBetweenTagAndGiftCertificate(Long tagId, Long CertificateId) {
+        return 1 == jdbcTemplate.update(
                 connection -> {
-                    PreparedStatement ps = connection.prepareStatement(SQL_DELETE_CONNECTION_CERTIFICATE_TAG, new String[]{"id"});
+                    PreparedStatement ps = connection.prepareStatement(SQL_DELETE_CONNECTION_CERTIFICATE_TAG);
                     ps.setLong(1, CertificateId);
                     ps.setLong(2, tagId);
                     return ps;
-                },
-                keyHolder);
-        return keyHolder.getKey().longValue();
+                });
     }
 }

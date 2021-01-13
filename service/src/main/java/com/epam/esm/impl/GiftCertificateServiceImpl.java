@@ -11,13 +11,10 @@ import com.epam.esm.model.GiftCertificate;
 import com.epam.esm.model.GiftCertificateDTO;
 import com.epam.esm.model.Tag;
 import com.epam.esm.model.TagDTO;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,14 +22,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class GiftCertificateServiceImpl implements GiftCertificateService {
-
-    private static final String GIFT_CERTIFICATE_ADDING_ERROR_MESSAGE = "Error while adding GiftCertificate.";
-    private static final String GIFT_CERTIFICATES_GETTING_ERROR_MESSAGE = "Error while getting GiftCertificates list.";
-    private static final String GIFT_CERTIFICATE_TAGS_UPDATING_ERROR_MESSAGE = "Error while updating GiftCertificate and tag list.";
-    private static final String GIFT_CERTIFICATE_DELETING_ERROR_MESSAGE = "Error while deleting GiftCertificate.";
-    private static final String CONNECTION_CLOSE_ERROR_MESSAGE = "Error while closing connection.";
-
-    private static final Logger logger = LogManager.getLogger(GiftCertificateRepositoryImpl.class);
 
     private final GiftCertificateRepository giftCertificateRepository;
     private final GiftCertificateConverter giftCertificateConverter;
@@ -56,237 +45,153 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public GiftCertificateDTO findById(Long id) throws ServiceException {
-        GiftCertificateDTO giftCertificateDTO;
-        try (Connection connection = connectionHandler.getConnection()) {
-            try {
-                connection.setAutoCommit(false);
-                GiftCertificate giftCertificate = giftCertificateRepository.findById(connection, id);
-                List<Tag> tags = tagRepository.findListTagsByCertificateId(id);
+        GiftCertificate giftCertificate = giftCertificateRepository.findById(id);
+        List<Tag> tags = tagRepository.findListTagsByCertificateId(id);
 
-                giftCertificateDTO = giftCertificateConverter.toDTO(giftCertificate);
-                List<TagDTO> tagDTOList = tags.stream().map(tagConverter::toDTO).collect(Collectors.toList());
-                giftCertificateDTO.setTags(tagDTOList);
-                connection.commit();
-                return giftCertificateDTO;
-            } catch (SQLException e) {
-                connection.rollback();
-                logger.error(e.getMessage(), e);
-                throw new ServiceException(GIFT_CERTIFICATE_ADDING_ERROR_MESSAGE, e);
-            }
-        } catch (SQLException e) {
-            logger.error(e.getMessage(), e);
-            throw new ServiceException(CONNECTION_CLOSE_ERROR_MESSAGE, e);
-        }
+        GiftCertificateDTO giftCertificateDTO = giftCertificateConverter.toDTO(giftCertificate);
+        List<TagDTO> tagDTOList = tags.stream().map(tagConverter::toDTO).collect(Collectors.toList());
+        giftCertificateDTO.setTags(tagDTOList);
+        return giftCertificateDTO;
     }
 
     @Override
+    @Transactional
     public Long create(GiftCertificateDTO giftCertificateDTO) {
-        try (Connection connection = connectionHandler.getConnection()) {
-            try {
-                connection.setAutoCommit(false);
-                GiftCertificate giftCertificate = giftCertificateConverter.toEntity(giftCertificateDTO);
-                Long id = giftCertificateRepository.create(connection, giftCertificate);
-                List<TagDTO> tagDTOList = giftCertificateDTO.getTags();
-                if (tagDTOList != null && tagDTOList.size() != 0) {
-                    tagDTOList.forEach(tagDTO -> {
-                        Tag tagByName = tagRepository.findByName(tagDTO.getName());
-                        if (tagByName == null) {
-                            Long tagId = tagRepository.create(tagConverter.toEntity(tagDTO));
-                            tagRepository.createConnectionBetweenTagAndGiftCertificate(tagId, id);
-                        } else {
-                            tagRepository.createConnectionBetweenTagAndGiftCertificate(tagByName.getId(), id);
-                        }
-                    });
+        GiftCertificate giftCertificate = giftCertificateConverter.toEntity(giftCertificateDTO);
+        Long id = giftCertificateRepository.create(giftCertificate);
+        List<TagDTO> tagDTOList = giftCertificateDTO.getTags();
+        if (tagDTOList.size() != 0) {
+            tagDTOList.forEach(tagDTO -> {
+                Tag tagByName = tagRepository.findByName(tagDTO.getName());
+                if (tagByName == null) {
+                    Long tagId = tagRepository.create(tagConverter.toEntity(tagDTO));
+                    tagRepository.createConnectionBetweenTagAndGiftCertificate(tagId, id);
+                } else {
+                    tagRepository.createConnectionBetweenTagAndGiftCertificate(tagByName.getId(), id);
                 }
-                connection.commit();
-                return id;
-            } catch (SQLException e) {
-                connection.rollback();
-                logger.error(e.getMessage(), e);
-                throw new ServiceException(GIFT_CERTIFICATE_ADDING_ERROR_MESSAGE, e);
-            }
-        } catch (SQLException e) {
-            logger.error(e.getMessage(), e);
-            throw new ServiceException(CONNECTION_CLOSE_ERROR_MESSAGE, e);
+            });
         }
+        return id;
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<GiftCertificateDTO> findAll() {
-        try (Connection connection = connectionHandler.getConnection()) {
-            try {
-                connection.setAutoCommit(false);
-                List<GiftCertificate> giftCertificates = giftCertificateRepository.findAll(connection);
-                List<GiftCertificateDTO> giftCertificateDTOS = giftCertificates.stream()
-                        .map(giftCertificateConverter::toDTO).collect(Collectors.toList());
-                giftCertificateDTOS.forEach(giftCertificateDTO -> {
-                    List<Tag> tags = tagRepository.findListTagsByCertificateId(giftCertificateDTO.getId());
-                    List<TagDTO> tagDTOList = tags.stream().map(tagConverter::toDTO).collect(Collectors.toList());
-                    giftCertificateDTO.setTags(tagDTOList);
-                });
-                connection.commit();
-                return giftCertificateDTOS;
-            } catch (SQLException e) {
-                connection.rollback();
-                logger.error(e.getMessage(), e);
-                throw new ServiceException(GIFT_CERTIFICATES_GETTING_ERROR_MESSAGE, e);
-            }
-        } catch (SQLException e) {
-            logger.error(e.getMessage(), e);
-            throw new ServiceException(CONNECTION_CLOSE_ERROR_MESSAGE, e);
-        }
+        List<GiftCertificate> giftCertificates = giftCertificateRepository.findAll();
+        List<GiftCertificateDTO> giftCertificateDTOS = giftCertificates.stream()
+                .map(giftCertificateConverter::toDTO).collect(Collectors.toList());
+        giftCertificateDTOS.forEach(giftCertificateDTO -> {
+            List<Tag> tags = tagRepository.findListTagsByCertificateId(giftCertificateDTO.getId());
+            List<TagDTO> tagDTOList = tags.stream().map(tagConverter::toDTO).collect(Collectors.toList());
+            giftCertificateDTO.setTags(tagDTOList);
+        });
+        return giftCertificateDTOS;
     }
 
     @Override
+    @Transactional(readOnly = true)
     public GiftCertificateDTO findByName(String name) throws ServiceException {
         GiftCertificateDTO giftCertificateDTO = null;
-        try (Connection connection = connectionHandler.getConnection()) {
-            try {
-                connection.setAutoCommit(false);
-                GiftCertificate giftCertificate = giftCertificateRepository.findByName(connection, name);
-                if (giftCertificate != null) {
-                    List<Tag> tags = tagRepository.findListTagsByCertificateId(giftCertificate.getId());
-                    giftCertificateDTO = giftCertificateConverter.toDTO(giftCertificate);
-                    List<TagDTO> tagDTOList = tags.stream().map(tagConverter::toDTO).collect(Collectors.toList());
-                    giftCertificateDTO.setTags(tagDTOList);
-                }
-                connection.commit();
-                return giftCertificateDTO;
-            } catch (SQLException e) {
-                connection.rollback();
-                logger.error(e.getMessage(), e);
-                throw new ServiceException(GIFT_CERTIFICATES_GETTING_ERROR_MESSAGE, e);
-            }
-        } catch (SQLException e) {
-            logger.error(e.getMessage(), e);
-            throw new ServiceException(CONNECTION_CLOSE_ERROR_MESSAGE, e);
+        GiftCertificate giftCertificate = giftCertificateRepository.findByName(name);
+        if (giftCertificate != null) {
+            List<Tag> tags = tagRepository.findListTagsByCertificateId(giftCertificate.getId());
+            giftCertificateDTO = giftCertificateConverter.toDTO(giftCertificate);
+            List<TagDTO> tagDTOList = tags.stream().map(tagConverter::toDTO).collect(Collectors.toList());
+            giftCertificateDTO.setTags(tagDTOList);
         }
+        return giftCertificateDTO;
     }
 
     @Override
+    @Transactional
     public boolean update(GiftCertificateDTO giftCertificateDTO) {
         boolean result;
-        try (Connection connection = connectionHandler.getConnection()) {
-            try {
-                connection.setAutoCommit(false);
-                GiftCertificate giftCertificate = giftCertificateRepository.findById(connection, giftCertificateDTO.getId());
-                if (giftCertificate == null) {
-                    connection.commit();
-                    return false;
-                }
-                if (giftCertificateDTO.getName() != null) {
-                    giftCertificate.setName(giftCertificateDTO.getName());
-                }
-                if (giftCertificateDTO.getDescription() != null) {
-                    giftCertificate.setDescription(giftCertificateDTO.getDescription());
-                }
-                if (giftCertificateDTO.getPrice() != null) {
-                    giftCertificate.setPrice(giftCertificateDTO.getPrice());
-                }
-                if (giftCertificateDTO.getDuration() != null) {
-                    giftCertificate.setDuration(giftCertificateDTO.getDuration());
-                }
-                giftCertificate.setLastUpdateDate(LocalDateTime.now());
-                result = giftCertificateRepository.update(connection, giftCertificate);
-
-                List<TagDTO> tagDTOList = giftCertificateDTO.getTags();
-                if (tagDTOList != null && tagDTOList.size() != 0) {
-                    List<Long> tagIdList = tagDTOList.stream().map(TagDTO::getId).collect(Collectors.toList());
-                    List<Tag> oldTagList = tagRepository.findListTagsByCertificateId(giftCertificate.getId());
-                    List<Long> oldTagIdList = oldTagList.stream().map(Tag::getId).collect(Collectors.toList());
-
-                    List<TagDTO> updateTagDTOList = tagDTOList.stream().filter(task -> task.getId() != null).collect(Collectors.toList());
-                    List<Long> idListUpdateTagDTOList = updateTagDTOList.stream().map(TagDTO::getId).collect(Collectors.toList());
-
-                    List<TagDTO> createTagList = tagDTOList.stream().filter(task -> task.getId() == null).collect(Collectors.toList());
-
-                    if (!tagIdList.containsAll(idListUpdateTagDTOList)) {
-                        throw new ServiceException("Tag List isn't relevant");
-                    }
-
-                    List<Long> deleteTagIdList = new ArrayList<>(oldTagIdList);
-                    deleteTagIdList.removeAll(idListUpdateTagDTOList);
-
-                    List<TagDTO> addTagList = new ArrayList<>(tagDTOList);
-                    addTagList.removeAll(createTagList);
-                    addTagList.removeAll(oldTagList.stream().map(tagConverter::toDTO).collect(Collectors.toList()));
-
-                    for (TagDTO tagDTO : createTagList) {
-                        Tag newTag = new Tag();
-                        newTag.setName(tagDTO.getName());
-                        Long newTagId = tagRepository.create(newTag);
-                        tagRepository.createConnectionBetweenTagAndGiftCertificate(newTagId, giftCertificate.getId());
-                    }
-                    addTagList.forEach(tagDTO -> tagRepository.createConnectionBetweenTagAndGiftCertificate(tagDTO.getId(), giftCertificate.getId()));
-
-                    deleteTagIdList.forEach(id -> tagRepository.deleteConnectionBetweenTagAndGiftCertificate(id, giftCertificate.getId()));
-                }
-                connection.commit();
-                return result;
-            } catch (SQLException e) {
-                connection.rollback();
-                logger.error(e.getMessage(), e);
-                throw new ServiceException(GIFT_CERTIFICATE_TAGS_UPDATING_ERROR_MESSAGE, e);
+        GiftCertificate giftCertificate = giftCertificateRepository.findById(giftCertificateDTO.getId());
+        if (giftCertificate == null) {
+            return false;
+        } else {
+            GiftCertificate updateGiftCertificate = new GiftCertificate();
+            updateGiftCertificate.setId(giftCertificate.getId());
+            if (!giftCertificateDTO.getName().equals(giftCertificate.getName())) {
+                giftCertificate.setName(giftCertificateDTO.getName());
             }
-        } catch (SQLException e) {
-            logger.error(e.getMessage(), e);
-            throw new ServiceException(CONNECTION_CLOSE_ERROR_MESSAGE, e);
+            if (!giftCertificateDTO.getDescription().equals(giftCertificate.getDescription())) {
+                giftCertificate.setDescription(giftCertificateDTO.getDescription());
+            }
+            if (!giftCertificateDTO.getPrice().equals(giftCertificate.getPrice())) {
+                giftCertificate.setPrice(giftCertificateDTO.getPrice());
+            }
+            if (!giftCertificateDTO.getDuration().equals(giftCertificate.getDuration())) {
+                giftCertificate.setDuration(giftCertificateDTO.getDuration());
+            }
+            updateGiftCertificate.setLastUpdateDate(LocalDateTime.now());
+            result = giftCertificateRepository.update(updateGiftCertificate);
+
+            List<TagDTO> tagDTOList = giftCertificateDTO.getTags();
+            if (tagDTOList.size() != 0) {
+                List<Long> tagIdList = tagDTOList.stream().map(TagDTO::getId).collect(Collectors.toList());
+                List<Tag> oldTagList = tagRepository.findListTagsByCertificateId(giftCertificate.getId());
+                List<Long> oldTagIdList = oldTagList.stream().map(Tag::getId).collect(Collectors.toList());
+
+                List<TagDTO> updateTagDTOList = tagDTOList.stream().filter(task -> task.getId() != null).collect(Collectors.toList());
+                List<Long> idListUpdateTagDTOList = updateTagDTOList.stream().map(TagDTO::getId).collect(Collectors.toList());
+
+                List<TagDTO> createTagList = tagDTOList.stream().filter(task -> task.getId() == null).collect(Collectors.toList());
+
+                if (!tagIdList.containsAll(idListUpdateTagDTOList)) {
+                    throw new ServiceException("Tag List isn't relevant");
+                }
+
+                List<Long> deleteTagIdList = new ArrayList<>(oldTagIdList);
+                deleteTagIdList.removeAll(idListUpdateTagDTOList);
+
+                List<TagDTO> addTagList = new ArrayList<>(tagDTOList);
+                addTagList.removeAll(createTagList);
+                addTagList.removeAll(oldTagList.stream().map(tagConverter::toDTO).collect(Collectors.toList()));
+
+                for (TagDTO tagDTO : createTagList) {
+                    Tag newTag = new Tag();
+                    newTag.setName(tagDTO.getName());
+                    Long newTagId = tagRepository.create(newTag);
+                    tagRepository.createConnectionBetweenTagAndGiftCertificate(newTagId, giftCertificate.getId());
+                }
+                addTagList.forEach(tagDTO -> tagRepository.createConnectionBetweenTagAndGiftCertificate(tagDTO.getId(), giftCertificate.getId()));
+
+                deleteTagIdList.forEach(id -> tagRepository.deleteConnectionBetweenTagAndGiftCertificate(id, giftCertificate.getId()));
+            }
         }
+        return result;
     }
 
     @Override
+    @Transactional
     public boolean delete(Long id) throws ServiceException {
         boolean result;
-        try (Connection connection = connectionHandler.getConnection()) {
-            try {
-                connection.setAutoCommit(false);
-                GiftCertificate giftCertificate = giftCertificateRepository.findById(connection, id);
-                if (giftCertificate == null) {
-                    connection.commit();
-                    return false;
-                }
-                List<Tag> tagList = tagRepository.findListTagsByCertificateId(giftCertificate.getId());
-                if (tagList != null && tagList.size() != 0) {
-                    tagList.forEach(tag -> tagRepository.deleteConnectionBetweenTagAndGiftCertificate(tag.getId(), id));
-                }
-                result = giftCertificateRepository.delete(connection, id);
-                connection.commit();
-                return result;
-            } catch (SQLException e) {
-                connection.rollback();
-                logger.error(e.getMessage(), e);
-                throw new ServiceException(GIFT_CERTIFICATE_DELETING_ERROR_MESSAGE, e);
-            }
-        } catch (SQLException e) {
-            logger.error(e.getMessage(), e);
-            throw new ServiceException(CONNECTION_CLOSE_ERROR_MESSAGE, e);
+        GiftCertificate giftCertificate = giftCertificateRepository.findById(id);
+        if (giftCertificate == null) {
+            return false;
         }
+        List<Tag> tagList = tagRepository.findListTagsByCertificateId(giftCertificate.getId());
+        if (tagList.size() != 0) {
+            tagList.forEach(tag -> tagRepository.deleteConnectionBetweenTagAndGiftCertificate(tag.getId(), id));
+        }
+        result = giftCertificateRepository.delete(id);
+        return result;
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<GiftCertificateDTO> findAllGiftCertificateListByTagName(String tagName) {
-        try (Connection connection = connectionHandler.getConnection()) {
-            try {
-                connection.setAutoCommit(false);
-                List<GiftCertificate> giftCertificates = giftCertificateRepository.findAllByTagName(connection, tagName);
-                List<GiftCertificateDTO> giftCertificateDTOS = giftCertificates.stream()
-                        .map(giftCertificateConverter::toDTO).collect(Collectors.toList());
-                giftCertificateDTOS.forEach(giftCertificateDTO -> {
-                    List<Tag> tags = tagRepository.findListTagsByCertificateId(giftCertificateDTO.getId());
-                    List<TagDTO> tagDTOList = tags.stream().map(tagConverter::toDTO).collect(Collectors.toList());
-                    giftCertificateDTO.setTags(tagDTOList);
-                });
-                connection.commit();
-                return giftCertificateDTOS;
-            } catch (SQLException e) {
-                connection.rollback();
-                logger.error(e.getMessage(), e);
-                throw new ServiceException(GIFT_CERTIFICATES_GETTING_ERROR_MESSAGE, e);
-            }
-        } catch (SQLException e) {
-            logger.error(e.getMessage(), e);
-            throw new ServiceException(CONNECTION_CLOSE_ERROR_MESSAGE, e);
-        }
+        List<GiftCertificate> giftCertificates = giftCertificateRepository.findAllByTagName(tagName);
+        List<GiftCertificateDTO> giftCertificateDTOS = giftCertificates.stream()
+                .map(giftCertificateConverter::toDTO).collect(Collectors.toList());
+        giftCertificateDTOS.forEach(giftCertificateDTO -> {
+            List<Tag> tags = tagRepository.findListTagsByCertificateId(giftCertificateDTO.getId());
+            List<TagDTO> tagDTOList = tags.stream().map(tagConverter::toDTO).collect(Collectors.toList());
+            giftCertificateDTO.setTags(tagDTOList);
+        });
+        return giftCertificateDTOS;
     }
 }
