@@ -174,9 +174,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
             return false;
         }
         List<Tag> tagList = tagRepository.findListTagsByCertificateId(giftCertificate.getId());
-        if (tagList.size() != 0) {
-            tagList.forEach(tag -> tagRepository.deleteConnectionBetweenTagAndGiftCertificate(tag.getId(), id));
-        }
+        tagList.forEach(tag -> tagRepository.deleteConnectionBetweenTagAndGiftCertificate(tag.getId(), id));
         result = giftCertificateRepository.delete(id);
         return result;
     }

@@ -21,17 +21,17 @@ public class GiftCertificateController {
         this.giftCertificateService = giftCertificateService;
     }
 
-    @GetMapping(value = "/giftCertificates")
+    @GetMapping(value = "/certificates")
     public List<GiftCertificateDTO> getGiftCertificates() throws ServiceException {
         return giftCertificateService.findAll();
     }
 
-    @GetMapping(value = "/giftCertificate/{id}")
+    @GetMapping(value = "/certificate/{id}")
     public GiftCertificateDTO getGiftCertificateById(@PathVariable("id") long id) throws ServiceException {
         return giftCertificateService.findById(id);
     }
 
-    @PostMapping(value = "/giftCertificate")
+    @PostMapping(value = "/certificate")
     public ResponseEntity<Long> createGiftCertificate(@RequestBody GiftCertificateDTO giftCertificate) throws ServiceException {
         GiftCertificateDTO giftCertificateByName = giftCertificateService.findByName(giftCertificate.getName());
         if (giftCertificateByName != null) {
@@ -41,7 +41,7 @@ public class GiftCertificateController {
         return new ResponseEntity<>(id, HttpStatus.OK);
     }
 
-    @PutMapping(value = "/giftCertificate/{id}")
+    @PutMapping(value = "/certificate/{id}")
     public ResponseEntity updateGiftCertificate(@PathVariable("id") long id, @RequestBody GiftCertificateDTO updateGiftCertificate) throws ServiceException {
         GiftCertificateDTO giftCertificateDTO = giftCertificateService.findById(id);
         if (giftCertificateDTO == null) {
@@ -52,7 +52,7 @@ public class GiftCertificateController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    @DeleteMapping(value = "/giftCertificate/{id}")
+    @DeleteMapping(value = "/certificate/{id}")
     public ResponseEntity deleteGiftCertificate(@PathVariable("id") long id) throws ServiceException {
         GiftCertificateDTO giftCertificate = giftCertificateService.findById(id);
         if (giftCertificate == null) {
@@ -62,7 +62,7 @@ public class GiftCertificateController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    @PostMapping(value = "/giftCertificate/filter")
+    @PostMapping(value = "/certificate/filter")
     public ResponseEntity<List<GiftCertificateDTO>> findAllGiftCertificatesByTagName(@RequestBody FilterForm form) throws ServiceException {
         if (form.getTagName() == null) {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
