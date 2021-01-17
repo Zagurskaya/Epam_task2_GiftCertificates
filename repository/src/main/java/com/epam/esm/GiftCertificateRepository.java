@@ -1,6 +1,5 @@
 package com.epam.esm;
 
-import com.epam.esm.exception.DaoException;
 import com.epam.esm.model.GiftCertificate;
 
 import java.util.List;
@@ -28,6 +27,14 @@ public interface GiftCertificateRepository {
      * @return true on successful creation
      */
     Long create(GiftCertificate giftCertificate);
+
+    /**
+     * Update part GiftCertificate
+     *
+     * @param giftCertificate - GiftCertificate
+     * @return true on successful change
+     */
+    boolean updatePart(GiftCertificate giftCertificate);
 
     /**
      * Update GiftCertificate

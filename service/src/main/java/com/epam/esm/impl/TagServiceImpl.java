@@ -2,7 +2,6 @@ package com.epam.esm.impl;
 
 import com.epam.esm.TagRepository;
 import com.epam.esm.TagService;
-import com.epam.esm.connection.ConnectionHandler;
 import com.epam.esm.converter.TagConverter;
 import com.epam.esm.model.Tag;
 import com.epam.esm.model.TagDTO;
@@ -17,17 +16,14 @@ public class TagServiceImpl implements TagService {
 
     private final TagRepository tagRepository;
     private final TagConverter tagConverter;
-    private final ConnectionHandler connectionHandler;
 
     @Autowired
     public TagServiceImpl(
             TagRepository tagRepository,
-            TagConverter tagConverter,
-            ConnectionHandler connectionHandler
+            TagConverter tagConverter
     ) {
         this.tagRepository = tagRepository;
         this.tagConverter = tagConverter;
-        this.connectionHandler = connectionHandler;
     }
 
     @Override
@@ -39,15 +35,13 @@ public class TagServiceImpl implements TagService {
     @Override
     public Long create(TagDTO tagDTO) {
         Tag tag = tagConverter.toEntity(tagDTO);
-        Long id = tagRepository.create(tag);
-        return id;
+        return tagRepository.create(tag);
     }
 
     @Override
     public List<TagDTO> findAll() {
         List<Tag> tags = tagRepository.findAll();
-        List<TagDTO> tagDTOs = tags.stream().map(tagConverter::toDTO).collect(Collectors.toList());
-        return tagDTOs;
+        return tags.stream().map(tagConverter::toDTO).collect(Collectors.toList());
     }
 
     @Override

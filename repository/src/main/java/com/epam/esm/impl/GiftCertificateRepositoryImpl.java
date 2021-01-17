@@ -3,21 +3,26 @@ package com.epam.esm.impl;
 import com.epam.esm.GiftCertificateRepository;
 import com.epam.esm.model.GiftCertificate;
 
-import com.epam.esm.rowmapper.GiftCertificateRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
 class GiftCertificateRepositoryImpl implements GiftCertificateRepository {
 
     JdbcTemplate jdbcTemplate;
+    NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     private static final String SQL_SELECT_ALL_GIFT_CERTIFICATES = "SELECT id, name, description, price, duration, creationDate, lastUpdateDate FROM giftCertificate ";
     private static final String SQL_SELECT_ALL_GIFT_CERTIFICATES_BY_TAG_NAME =
@@ -32,10 +37,13 @@ class GiftCertificateRepositoryImpl implements GiftCertificateRepository {
     private static final String SQL_SELECT_GIFT_CERTIFICATE_BY_NAME = "SELECT id, name, description, price, duration, creationDate, lastUpdateDate FROM giftCertificate WHERE name = ? ";
     private static final String SQL_INSERT_GIFT_CERTIFICATE = "INSERT INTO giftCertificate(name, description, price, duration, creationDate, lastUpdateDate) VALUES (?, ?, ?, ?, ?, ?)";
     private static final String SQL_DELETE_GIFT_CERTIFICATE = "DELETE FROM giftCertificate WHERE id=?";
+    private static final String SQL_UPDATE_GIFT_CERTIFICATE = "UPDATE giftCertificate SET name=?, description=?, price=?, duration=?, creationDate=?, lastUpdateDate=? WHERE id= ?";
 
     @Autowired
     public GiftCertificateRepositoryImpl(DataSource dataSource) {
+
         jdbcTemplate = new JdbcTemplate(dataSource);
+        namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 
     @Override
@@ -69,33 +77,33 @@ class GiftCertificateRepositoryImpl implements GiftCertificateRepository {
     }
 
     @Override
-    public boolean update(GiftCertificate giftCertificate) {
+    public boolean updatePart(GiftCertificate giftCertificate) {
 
-        StringBuilder SQL_UPDATE_GIFT_CERTIFICATE = new StringBuilder();
-        SQL_UPDATE_GIFT_CERTIFICATE.append("UPDATE giftCertificate SET ");
+        StringBuilder sqlUpdatePart = new StringBuilder();
+        sqlUpdatePart.append("UPDATE giftCertificate SET ");
         if (giftCertificate.getName() != null) {
-            SQL_UPDATE_GIFT_CERTIFICATE.append(" name=?,");
+            sqlUpdatePart.append(" name=?,");
         }
         if (giftCertificate.getDescription() != null) {
-            SQL_UPDATE_GIFT_CERTIFICATE.append(" description=?,");
+            sqlUpdatePart.append(" description=?,");
         }
         if (giftCertificate.getPrice() != null) {
-            SQL_UPDATE_GIFT_CERTIFICATE.append(" price=?,");
+            sqlUpdatePart.append(" price=?,");
         }
         if (giftCertificate.getDuration() != null) {
-            SQL_UPDATE_GIFT_CERTIFICATE.append(" duration=?,");
+            sqlUpdatePart.append(" duration=?,");
         }
         if (giftCertificate.getCreationDate() != null) {
-            SQL_UPDATE_GIFT_CERTIFICATE.append(" creationDate=?,");
+            sqlUpdatePart.append(" creationDate=?,");
         }
         if (giftCertificate.getLastUpdateDate() != null) {
-            SQL_UPDATE_GIFT_CERTIFICATE.append(" lastUpdateDate=?");
+            sqlUpdatePart.append(" lastUpdateDate=?");
         }
-        SQL_UPDATE_GIFT_CERTIFICATE.append(" WHERE id= ?");
+        sqlUpdatePart.append(" WHERE id= ?");
 
         int result = jdbcTemplate.update(
                 connection -> {
-                    PreparedStatement ps = connection.prepareStatement(SQL_UPDATE_GIFT_CERTIFICATE.toString());
+                    PreparedStatement ps = connection.prepareStatement(sqlUpdatePart.toString());
                     int i = 1;
                     if (giftCertificate.getName() != null) {
                         ps.setString(i, giftCertificate.getName());
@@ -126,6 +134,13 @@ class GiftCertificateRepositoryImpl implements GiftCertificateRepository {
     }
 
     @Override
+    public boolean update(GiftCertificate giftCertificate) {
+        return jdbcTemplate.update(SQL_UPDATE_GIFT_CERTIFICATE,
+                giftCertificate.getName(), giftCertificate.getDescription(), giftCertificate.getPrice(), giftCertificate.getDuration(),
+                giftCertificate.getCreationDate().toString(), giftCertificate.getLastUpdateDate().toString(), giftCertificate.getId()) > 0;
+    }
+
+    @Override
     public boolean delete(Long id) {
         return 1 == jdbcTemplate.update(SQL_DELETE_GIFT_CERTIFICATE, id);
     }
@@ -139,5 +154,21 @@ class GiftCertificateRepositoryImpl implements GiftCertificateRepository {
     @Override
     public List<GiftCertificate> findAllByTagName(String tagName) {
         return jdbcTemplate.query(SQL_SELECT_ALL_GIFT_CERTIFICATES_BY_TAG_NAME, new GiftCertificateRowMapper());
+    }
+
+    class GiftCertificateRowMapper implements RowMapper<GiftCertificate> {
+
+        @Override
+        public GiftCertificate mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return new GiftCertificate(
+                    rs.getLong(ColumnName.GIFT_CERTIFICATE_ID),
+                    rs.getString(ColumnName.GIFT_CERTIFICATE_NAME),
+                    rs.getString(ColumnName.GIFT_CERTIFICATE_DESCRIPTION),
+                    rs.getBigDecimal(ColumnName.GIFT_CERTIFICATE_PRICE),
+                    rs.getInt(ColumnName.GIFT_CERTIFICATE_DURATION),
+                    rs.getObject(ColumnName.GIFT_CERTIFICATE_CREATION_DATE, LocalDateTime.class),
+                    rs.getObject(ColumnName.GIFT_CERTIFICATE_LAST_UPDATE_DATE, LocalDateTime.class)
+            );
+        }
     }
 }

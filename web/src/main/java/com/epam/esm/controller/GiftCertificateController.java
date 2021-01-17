@@ -27,12 +27,12 @@ public class GiftCertificateController {
     }
 
     @GetMapping(value = "/certificate/{id}")
-    public GiftCertificateDTO getGiftCertificateById(@PathVariable("id") long id) throws ServiceException {
+    public GiftCertificateDTO getGiftCertificateById(@PathVariable("id") long id) {
         return giftCertificateService.findById(id);
     }
 
     @PostMapping(value = "/certificate")
-    public ResponseEntity<Long> createGiftCertificate(@RequestBody GiftCertificateDTO giftCertificate) throws ServiceException {
+    public ResponseEntity<Long> createGiftCertificate(@RequestBody GiftCertificateDTO giftCertificate) {
         GiftCertificateDTO giftCertificateByName = giftCertificateService.findByName(giftCertificate.getName());
         if (giftCertificateByName != null) {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
@@ -42,28 +42,53 @@ public class GiftCertificateController {
     }
 
     @PutMapping(value = "/certificate/{id}")
-    public ResponseEntity updateGiftCertificate(@PathVariable("id") long id, @RequestBody GiftCertificateDTO updateGiftCertificate) throws ServiceException {
+    public ResponseEntity updateGiftCertificate(@PathVariable("id") long id, @RequestBody GiftCertificateDTO updateGiftCertificate) {
+        GiftCertificateDTO giftCertificateDTO = giftCertificateService.findById(id);
+        if (giftCertificateDTO == null ||
+                giftCertificateDTO.getDescription() == null ||
+                giftCertificateDTO.getDuration() == null ||
+                giftCertificateDTO.getPrice() == null ||
+                giftCertificateDTO.getCreationDate() == null ||
+                giftCertificateDTO.getLastUpdateDate() == null ||
+                giftCertificateDTO.getTags() == null) {
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+        GiftCertificateDTO giftCertificateByName = giftCertificateService.findByName(updateGiftCertificate.getName());
+        if (giftCertificateByName != null) {
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+        updateGiftCertificate.setId(id);
+        return giftCertificateService.update(updateGiftCertificate) ? new ResponseEntity(HttpStatus.OK) : new ResponseEntity(HttpStatus.BAD_REQUEST);
+    }
+
+    @PatchMapping(value = "/certificate/{id}")
+    public ResponseEntity updatePartGiftCertificate(@PathVariable("id") long id, @RequestBody GiftCertificateDTO updateGiftCertificate) {
         GiftCertificateDTO giftCertificateDTO = giftCertificateService.findById(id);
         if (giftCertificateDTO == null) {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
+        if (updateGiftCertificate.getName() != null) {
+            GiftCertificateDTO giftCertificateByName = giftCertificateService.findByName(updateGiftCertificate.getName());
+            if (giftCertificateByName != null) {
+                return new ResponseEntity(HttpStatus.BAD_REQUEST);
+            }
+        }
         updateGiftCertificate.setId(id);
-        giftCertificateService.update(updateGiftCertificate);
-        return new ResponseEntity(HttpStatus.OK);
+        return giftCertificateService.updatePart(updateGiftCertificate) ? new ResponseEntity(HttpStatus.OK) : new ResponseEntity(HttpStatus.BAD_REQUEST);
+
     }
 
     @DeleteMapping(value = "/certificate/{id}")
-    public ResponseEntity deleteGiftCertificate(@PathVariable("id") long id) throws ServiceException {
+    public ResponseEntity deleteGiftCertificate(@PathVariable("id") long id) {
         GiftCertificateDTO giftCertificate = giftCertificateService.findById(id);
         if (giftCertificate == null) {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
-        giftCertificateService.delete(id);
-        return new ResponseEntity(HttpStatus.OK);
+        return giftCertificateService.delete(id) ? new ResponseEntity(HttpStatus.OK) : new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
 
     @PostMapping(value = "/certificate/filter")
-    public ResponseEntity<List<GiftCertificateDTO>> findAllGiftCertificatesByTagName(@RequestBody FilterForm form) throws ServiceException {
+    public ResponseEntity<List<GiftCertificateDTO>> findAllGiftCertificatesByTagName(@RequestBody FilterForm form) {
         if (form.getTagName() == null) {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }

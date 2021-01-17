@@ -2,15 +2,17 @@ package com.epam.esm.impl;
 
 import com.epam.esm.TagRepository;
 import com.epam.esm.model.Tag;
-import com.epam.esm.rowmapper.TagRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
 @Repository
@@ -100,5 +102,16 @@ public class TagRepositoryImpl implements TagRepository {
                     ps.setLong(2, tagId);
                     return ps;
                 });
+    }
+
+    class TagRowMapper implements RowMapper<Tag> {
+
+        @Override
+        public Tag mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return new Tag(
+                    rs.getLong(ColumnName.TAG_ID),
+                    rs.getString(ColumnName.TAG_NAME)
+            );
+        }
     }
 }

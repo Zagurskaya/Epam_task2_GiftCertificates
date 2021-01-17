@@ -43,6 +43,4 @@ public class GiftCertificate {
      */
     private LocalDateTime lastUpdateDate;
 
-    public GiftCertificate(long aLong, String string, BigDecimal bigDecimal, int anInt, LocalDateTime object, LocalDateTime object1) {
-    }
 }

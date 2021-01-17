@@ -57,6 +57,7 @@ public interface GiftCertificateService {
      * @throws ServiceException error during execution of logical blocks and actions
      */
     GiftCertificateDTO findByName(String name) throws ServiceException;
+
     /**
      * Search GiftCertificateDTO list by Tag name
      *
@@ -65,4 +66,13 @@ public interface GiftCertificateService {
      * @throws ServiceException error during execution of logical blocks and actions
      */
     List<GiftCertificateDTO> findAllGiftCertificateListByTagName(String tagName);
+
+    /**
+     * Update part GiftCertificateDTO
+     *
+     * @param giftCertificateDTO - GiftCertificateDTO
+     * @return true on successful update
+     * @throws ServiceException error during execution of logical blocks and actions
+     */
+    boolean updatePart(GiftCertificateDTO giftCertificateDTO);
 }
