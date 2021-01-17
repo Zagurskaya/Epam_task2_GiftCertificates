@@ -4,6 +4,7 @@ import com.epam.esm.exception.ServiceException;
 import com.epam.esm.model.GiftCertificateDTO;
 
 import java.util.List;
+import java.util.Map;
 
 public interface GiftCertificateService {
     /**
@@ -59,15 +60,6 @@ public interface GiftCertificateService {
     GiftCertificateDTO findByName(String name) throws ServiceException;
 
     /**
-     * Search GiftCertificateDTO list by Tag name
-     *
-     * @param tagName - Tag name
-     * @return GiftCertificateDTO
-     * @throws ServiceException error during execution of logical blocks and actions
-     */
-    List<GiftCertificateDTO> findAllGiftCertificateListByTagName(String tagName);
-
-    /**
      * Update part GiftCertificateDTO
      *
      * @param giftCertificateDTO - GiftCertificateDTO
@@ -75,4 +67,11 @@ public interface GiftCertificateService {
      * @throws ServiceException error during execution of logical blocks and actions
      */
     boolean updatePart(GiftCertificateDTO giftCertificateDTO);
+
+    /**
+     * Get giftCertificateDTO List by filter
+     *
+     * @return giftCertificateDTO List
+     */
+    List<GiftCertificateDTO> findAllByFilter(Map<String, String> filter);
 }

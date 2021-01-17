@@ -2,14 +2,16 @@ package com.epam.esm.controller;
 
 import com.epam.esm.GiftCertificateService;
 import com.epam.esm.exception.ServiceException;
+import com.epam.esm.form.Filter;
 import com.epam.esm.model.GiftCertificateDTO;
-import com.epam.esm.request.FilterForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class GiftCertificateController {
@@ -22,8 +24,18 @@ public class GiftCertificateController {
     }
 
     @GetMapping(value = "/certificates")
-    public List<GiftCertificateDTO> getGiftCertificates() throws ServiceException {
-        return giftCertificateService.findAll();
+    public List<GiftCertificateDTO> getGiftCertificates(Filter filter) throws ServiceException {
+        List<GiftCertificateDTO> certificateDTOS = null;
+        Map<String, String> filterMap = new HashMap<>();
+        if (filter.getTagName() != null) filterMap.put("tagName", filter.getTagName());
+        if (filter.getPartName() != null) filterMap.put("partName", filter.getPartName());
+        if (filter.getPartDescription() != null) filterMap.put("partDescription", filter.getPartDescription());
+        if (filterMap.isEmpty()) {
+            certificateDTOS = giftCertificateService.findAll();
+        } else {
+            certificateDTOS = giftCertificateService.findAllByFilter(filterMap);
+        }
+        return certificateDTOS;
     }
 
     @GetMapping(value = "/certificate/{id}")
@@ -85,14 +97,5 @@ public class GiftCertificateController {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
         return giftCertificateService.delete(id) ? new ResponseEntity(HttpStatus.OK) : new ResponseEntity(HttpStatus.BAD_REQUEST);
-    }
-
-    @PostMapping(value = "/certificate/filter")
-    public ResponseEntity<List<GiftCertificateDTO>> findAllGiftCertificatesByTagName(@RequestBody FilterForm form) {
-        if (form.getTagName() == null) {
-            return new ResponseEntity(HttpStatus.BAD_REQUEST);
-        }
-        List<GiftCertificateDTO> listGiftCertificateDTOByTagName = giftCertificateService.findAllGiftCertificateListByTagName(form.getTagName());
-        return new ResponseEntity<>(listGiftCertificateDTOByTagName, HttpStatus.OK);
     }
 }

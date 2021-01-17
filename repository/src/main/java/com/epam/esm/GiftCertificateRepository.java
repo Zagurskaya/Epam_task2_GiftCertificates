@@ -3,6 +3,7 @@ package com.epam.esm;
 import com.epam.esm.model.GiftCertificate;
 
 import java.util.List;
+import java.util.Map;
 
 public interface GiftCertificateRepository {
     /**
@@ -62,10 +63,9 @@ public interface GiftCertificateRepository {
     GiftCertificate findByName(String name);
 
     /**
-     * GiftCertificates search by Tag name
+     * Get a list of GiftCertificates by filter
      *
-     * @param tagName - Tag name
-     * @return giftCertificate
+     * @return list of GiftCertificates
      */
-    List<GiftCertificate> findAllByTagName(String tagName);
+    List<GiftCertificate> findAllByFilter(Map<String, String> filter);
 }

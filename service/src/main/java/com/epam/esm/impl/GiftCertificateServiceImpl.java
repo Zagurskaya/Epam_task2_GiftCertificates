@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -165,20 +166,6 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public List<GiftCertificateDTO> findAllGiftCertificateListByTagName(String tagName) {
-        List<GiftCertificate> giftCertificates = giftCertificateRepository.findAllByTagName(tagName);
-        List<GiftCertificateDTO> giftCertificateDTOS = giftCertificates.stream()
-                .map(giftCertificateConverter::toDTO).collect(Collectors.toList());
-        giftCertificateDTOS.forEach(giftCertificateDTO -> {
-            List<Tag> tags = tagRepository.findListTagsByCertificateId(giftCertificateDTO.getId());
-            List<TagDTO> tagDTOList = tags.stream().map(tagConverter::toDTO).collect(Collectors.toList());
-            giftCertificateDTO.setTags(tagDTOList);
-        });
-        return giftCertificateDTOS;
-    }
-
-    @Override
     public boolean updatePart(GiftCertificateDTO giftCertificateDTO) {
         boolean result;
         GiftCertificate giftCertificate = giftCertificateRepository.findById(giftCertificateDTO.getId());
@@ -233,4 +220,18 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         }
         return result;
     }
+
+    @Override
+    public List<GiftCertificateDTO> findAllByFilter(Map<String, String> filter) {
+        List<GiftCertificate> giftCertificates = giftCertificateRepository.findAllByFilter(filter);
+        List<GiftCertificateDTO> giftCertificateDTOS = giftCertificates.stream()
+                .map(giftCertificateConverter::toDTO).collect(Collectors.toList());
+        giftCertificateDTOS.forEach(giftCertificateDTO -> {
+            List<Tag> tags = tagRepository.findListTagsByCertificateId(giftCertificateDTO.getId());
+            List<TagDTO> tagDTOList = tags.stream().map(tagConverter::toDTO).collect(Collectors.toList());
+            giftCertificateDTO.setTags(tagDTOList);
+        });
+        return giftCertificateDTOS;
+    }
+
 }

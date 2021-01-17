@@ -17,6 +17,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 class GiftCertificateRepositoryImpl implements GiftCertificateRepository {
@@ -25,14 +26,6 @@ class GiftCertificateRepositoryImpl implements GiftCertificateRepository {
     NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     private static final String SQL_SELECT_ALL_GIFT_CERTIFICATES = "SELECT id, name, description, price, duration, creationDate, lastUpdateDate FROM giftCertificate ";
-    private static final String SQL_SELECT_ALL_GIFT_CERTIFICATES_BY_TAG_NAME =
-            "SELECT giftcertificate.id as id, giftcertificate.name as name, giftcertificate.description as description, giftcertificate.price as price, giftcertificate.duration as duration, giftcertificate.creationDate as creationDate,giftcertificate.lastUpdateDate as lastUpdateDate\n" +
-                    "FROM certificate_tag\n" +
-                    "LEFT JOIN giftcertificate\n" +
-                    "ON certificate_tag.certificateId = giftcertificate.id\n" +
-                    "LEFT JOIN tag\n" +
-                    "ON certificate_tag.tagId = tag.id\n" +
-                    "WHERE tag.name = ? ";
     private static final String SQL_SELECT_GIFT_CERTIFICATE_BY_ID = "SELECT id, name, description, price, duration, creationDate, lastUpdateDate FROM giftCertificate WHERE id= ? ";
     private static final String SQL_SELECT_GIFT_CERTIFICATE_BY_NAME = "SELECT id, name, description, price, duration, creationDate, lastUpdateDate FROM giftCertificate WHERE name = ? ";
     private static final String SQL_INSERT_GIFT_CERTIFICATE = "INSERT INTO giftCertificate(name, description, price, duration, creationDate, lastUpdateDate) VALUES (?, ?, ?, ?, ?, ?)";
@@ -79,31 +72,31 @@ class GiftCertificateRepositoryImpl implements GiftCertificateRepository {
     @Override
     public boolean updatePart(GiftCertificate giftCertificate) {
 
-        StringBuilder sqlUpdatePart = new StringBuilder();
-        sqlUpdatePart.append("UPDATE giftCertificate SET ");
+        String sqlUpdatePart = "UPDATE giftCertificate SET ";
         if (giftCertificate.getName() != null) {
-            sqlUpdatePart.append(" name=?,");
+            sqlUpdatePart = sqlUpdatePart + " name=?,";
         }
         if (giftCertificate.getDescription() != null) {
-            sqlUpdatePart.append(" description=?,");
+            sqlUpdatePart = sqlUpdatePart + " description=?,";
         }
         if (giftCertificate.getPrice() != null) {
-            sqlUpdatePart.append(" price=?,");
+            sqlUpdatePart = sqlUpdatePart + " price=?,";
         }
         if (giftCertificate.getDuration() != null) {
-            sqlUpdatePart.append(" duration=?,");
+            sqlUpdatePart = sqlUpdatePart + " duration=?,";
         }
         if (giftCertificate.getCreationDate() != null) {
-            sqlUpdatePart.append(" creationDate=?,");
+            sqlUpdatePart = sqlUpdatePart + " creationDate=?,";
         }
         if (giftCertificate.getLastUpdateDate() != null) {
-            sqlUpdatePart.append(" lastUpdateDate=?");
+            sqlUpdatePart = sqlUpdatePart + " lastUpdateDate=?";
         }
-        sqlUpdatePart.append(" WHERE id= ?");
+        sqlUpdatePart = sqlUpdatePart + " WHERE id= ?";
 
+        String finalSqlUpdatePart = sqlUpdatePart;
         int result = jdbcTemplate.update(
                 connection -> {
-                    PreparedStatement ps = connection.prepareStatement(sqlUpdatePart.toString());
+                    PreparedStatement ps = connection.prepareStatement(finalSqlUpdatePart.toString());
                     int i = 1;
                     if (giftCertificate.getName() != null) {
                         ps.setString(i, giftCertificate.getName());
@@ -152,8 +145,55 @@ class GiftCertificateRepositoryImpl implements GiftCertificateRepository {
     }
 
     @Override
-    public List<GiftCertificate> findAllByTagName(String tagName) {
-        return jdbcTemplate.query(SQL_SELECT_ALL_GIFT_CERTIFICATES_BY_TAG_NAME, new GiftCertificateRowMapper());
+    public List<GiftCertificate> findAllByFilter(Map<String, String> filter) {
+
+        String sqlFilter = "SELECT giftcertificate.id, giftcertificate.name, giftcertificate.description,giftcertificate.price, giftcertificate.duration, giftcertificate.creationDate, giftcertificate.lastUpdateDate \n" +
+                "FROM giftcertificate\n" +
+                "LEFT JOIN certificate_tag\n" +
+                "ON giftcertificate.id = certificate_tag.certificateId\n" +
+                "LEFT JOIN tag \n" +
+                "ON certificate_tag.tagId = tag.id\n" +
+                "WHERE  \n";
+        boolean isAddAnd = false;
+
+        if (filter.get("tagName") != null) {
+            sqlFilter = sqlFilter + " tag.name =? ";
+            isAddAnd = true;
+        }
+        if (filter.get("partName") != null) {
+            if (isAddAnd) {
+                sqlFilter = sqlFilter + " AND ";
+            }
+            sqlFilter = sqlFilter + " giftcertificate.name LIKE ? ";
+            isAddAnd = true;
+        }
+        if (filter.get("partDescription") != null) {
+            if (isAddAnd) {
+                sqlFilter = sqlFilter + " AND ";
+            }
+            sqlFilter = sqlFilter + " giftcertificate.description LIKE ?";
+        }
+
+        String finalSqlFilter = sqlFilter;
+        List<GiftCertificate> certificates = jdbcTemplate.query(
+                connection -> {
+                    PreparedStatement ps = connection.prepareStatement(finalSqlFilter);
+                    int i = 1;
+                    if (filter.get("tagName") != null) {
+                        ps.setString(i, filter.get("tagName"));
+                        i++;
+                    }
+                    if (filter.get("partName") != null) {
+                        ps.setString(i, "%" + filter.get("partName") + "%");
+                        i++;
+                    }
+                    if (filter.get("partDescription") != null) {
+                        ps.setString(i, "%" + filter.get("partDescription") + "%");
+                        i++;
+                    }
+                    return ps;
+                }, new GiftCertificateRowMapper());
+        return certificates;
     }
 
     class GiftCertificateRowMapper implements RowMapper<GiftCertificate> {
