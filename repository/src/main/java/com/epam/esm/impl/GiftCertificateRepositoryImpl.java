@@ -18,6 +18,7 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Repository
 class GiftCertificateRepositoryImpl implements GiftCertificateRepository {
@@ -46,9 +47,9 @@ class GiftCertificateRepositoryImpl implements GiftCertificateRepository {
     }
 
     @Override
-    public GiftCertificate findById(Long id) {
-        List<GiftCertificate> result = jdbcTemplate.query(SQL_SELECT_GIFT_CERTIFICATE_BY_ID, new GiftCertificateRowMapper(), id);
-        return result.isEmpty() ? null : result.get(0);
+    public Optional<GiftCertificate> findById(Long id) {
+        GiftCertificate certificate = jdbcTemplate.queryForObject(SQL_SELECT_GIFT_CERTIFICATE_BY_ID, new Object[]{id}, new GiftCertificateRowMapper());
+        return Optional.of(certificate);
     }
 
     @Override
@@ -139,9 +140,9 @@ class GiftCertificateRepositoryImpl implements GiftCertificateRepository {
     }
 
     @Override
-    public GiftCertificate findByName(String name) {
-        List<GiftCertificate> certificates = jdbcTemplate.query(SQL_SELECT_GIFT_CERTIFICATE_BY_NAME, new GiftCertificateRowMapper(), name);
-        return certificates.isEmpty() ? null : certificates.get(0);
+    public Optional<GiftCertificate> findByName(String name) {
+        GiftCertificate certificate = jdbcTemplate.queryForObject(SQL_SELECT_GIFT_CERTIFICATE_BY_NAME, new Object[]{name}, new GiftCertificateRowMapper());
+        return Optional.of(certificate);
     }
 
     @Override

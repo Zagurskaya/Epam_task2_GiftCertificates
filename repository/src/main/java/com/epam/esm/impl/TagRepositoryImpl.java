@@ -14,6 +14,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class TagRepositoryImpl implements TagRepository {
@@ -45,9 +46,9 @@ public class TagRepositoryImpl implements TagRepository {
     }
 
     @Override
-    public Tag findById(Long id) {
-        List<Tag> result = jdbcTemplate.query(SQL_SELECT_TAG_BY_ID, new TagRowMapper(), id);
-        return result.isEmpty() ? null : result.get(0);
+    public Optional<Tag> findById(Long id) {
+        Tag tag = jdbcTemplate.queryForObject(SQL_SELECT_TAG_BY_ID, new Object[]{id}, new TagRowMapper());
+        return Optional.of(tag);
     }
 
     @Override
@@ -74,9 +75,9 @@ public class TagRepositoryImpl implements TagRepository {
     }
 
     @Override
-    public Tag findByName(String name) {
-        List<Tag> tags = jdbcTemplate.query(SQL_SELECT_TAG_BY_NAME, new TagRowMapper(), name);
-        return tags.isEmpty() ? null : tags.get(0);
+    public Optional<Tag> findByName(String name) {
+        Tag tag = jdbcTemplate.queryForObject(SQL_SELECT_TAG_BY_NAME, new Object[]{name}, new TagRowMapper());
+        return Optional.of(tag);
     }
 
     @Override

@@ -4,6 +4,7 @@ import com.epam.esm.model.GiftCertificate;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public interface GiftCertificateRepository {
     /**
@@ -19,7 +20,7 @@ public interface GiftCertificateRepository {
      * @param id - ID
      * @return object
      */
-    GiftCertificate findById(Long id);
+    Optional<GiftCertificate> findById(Long id);
 
     /**
      * Create GiftCertificate
@@ -60,7 +61,7 @@ public interface GiftCertificateRepository {
      * @param name - giftCertificate name
      * @return giftCertificate
      */
-    GiftCertificate findByName(String name);
+    Optional<GiftCertificate> findByName(String name);
 
     /**
      * Get a list of GiftCertificates by filter

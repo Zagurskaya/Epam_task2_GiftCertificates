@@ -4,6 +4,7 @@ import com.epam.esm.exception.DaoException;
 import com.epam.esm.model.Tag;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface TagRepository {
     /**
@@ -21,7 +22,7 @@ public interface TagRepository {
      * @return object
      * @throws DaoException database access error or other errors.
      */
-    Tag findById(Long id);
+    Optional<Tag> findById(Long id);
 
     /**
      * Create Tag
@@ -54,7 +55,7 @@ public interface TagRepository {
      * @param name - tag name
      * @return tag
      */
-    Tag findByName(String name);
+    Optional<Tag> findByName(String name);
 
     /**
      * Create Tag and connection with GiftCertificate
