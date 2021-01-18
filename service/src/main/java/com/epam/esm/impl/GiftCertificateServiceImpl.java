@@ -58,7 +58,12 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     @Transactional
     public Long create(GiftCertificateDTO giftCertificateDTO) {
+        if (giftCertificateRepository.findByName(giftCertificateDTO.getName()).isPresent()) {
+            throw new ServiceException("Certificate found with name " + giftCertificateDTO.getName());
+        }
         GiftCertificate giftCertificate = giftCertificateConverter.toEntity(giftCertificateDTO);
+        giftCertificate.setCreationDate(LocalDateTime.now());
+        giftCertificate.setLastUpdateDate(LocalDateTime.now());
         Long id = giftCertificateRepository.create(giftCertificate);
         List<TagDTO> tagDTOList = giftCertificateDTO.getTags();
         if (tagDTOList.size() != 0) {
@@ -109,6 +114,11 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         boolean result;
         GiftCertificate giftCertificate = giftCertificateRepository.findById(giftCertificateDTO.getId())
                 .orElseThrow(() -> new ServiceException("Certificate not found with id " + giftCertificateDTO.getId()));
+
+        Optional<GiftCertificate> giftCertificateByName = giftCertificateRepository.findByName(giftCertificateDTO.getName());
+        if (giftCertificateByName.isPresent() && giftCertificateByName.get().getId() != giftCertificateDTO.getId()) {
+            throw new ServiceException("Certificate found with name " + giftCertificateDTO.getName());
+        }
         GiftCertificate updateGiftCertificate = new GiftCertificate();
         updateGiftCertificate.setId(giftCertificate.getId());
         updateGiftCertificate.setName(giftCertificateDTO.getName());
@@ -168,6 +178,10 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         GiftCertificate giftCertificate = giftCertificateRepository.findById(giftCertificateDTO.getId())
                 .orElseThrow(() -> new ServiceException("Certificate not found with id " + giftCertificateDTO.getId()));
 
+        Optional<GiftCertificate> giftCertificateByName = giftCertificateRepository.findByName(giftCertificateDTO.getName());
+        if (giftCertificateByName.isPresent() && giftCertificateByName.get().getId() != giftCertificateDTO.getId()) {
+            throw new ServiceException("Certificate found with name " + giftCertificateDTO.getName());
+        }
         GiftCertificate updateGiftCertificate = new GiftCertificate();
         updateGiftCertificate.setId(giftCertificate.getId());
         if (giftCertificateDTO.getName() != null) {

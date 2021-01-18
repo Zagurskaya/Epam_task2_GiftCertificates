@@ -4,9 +4,9 @@ import com.epam.esm.GiftCertificateRepository;
 import com.epam.esm.model.GiftCertificate;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
@@ -24,11 +24,17 @@ import java.util.Optional;
 class GiftCertificateRepositoryImpl implements GiftCertificateRepository {
 
     JdbcTemplate jdbcTemplate;
-    NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     private static final String SQL_SELECT_ALL_GIFT_CERTIFICATES = "SELECT id, name, description, price, duration, creationDate, lastUpdateDate FROM giftCertificate ";
+    private static final String SQL_SELECT_ALL_GIFT_CERTIFICATES_BY_FILTER = "SELECT giftcertificate.id, giftcertificate.name, giftcertificate.description,giftcertificate.price, giftcertificate.duration, giftcertificate.creationDate, giftcertificate.lastUpdateDate \n" +
+            "FROM giftcertificate\n" +
+            "LEFT JOIN certificate_tag\n" +
+            "ON giftcertificate.id = certificate_tag.certificateId\n" +
+            "LEFT JOIN tag \n" +
+            "ON certificate_tag.tagId = tag.id\n" +
+            "WHERE  \n";
     private static final String SQL_SELECT_GIFT_CERTIFICATE_BY_ID = "SELECT id, name, description, price, duration, creationDate, lastUpdateDate FROM giftCertificate WHERE id= ? ";
-    private static final String SQL_SELECT_GIFT_CERTIFICATE_BY_NAME = "SELECT id, name, description, price, duration, creationDate, lastUpdateDate FROM giftCertificate WHERE name = ? ";
+    private static final String SQL_SELECT_GIFT_CERTIFICATE_BY_NAME = "SELECT id, name, description, price, duration, creationDate, lastUpdateDate FROM giftCertificate WHERE name = ? LIMIT 1";
     private static final String SQL_INSERT_GIFT_CERTIFICATE = "INSERT INTO giftCertificate(name, description, price, duration, creationDate, lastUpdateDate) VALUES (?, ?, ?, ?, ?, ?)";
     private static final String SQL_DELETE_GIFT_CERTIFICATE = "DELETE FROM giftCertificate WHERE id=?";
     private static final String SQL_UPDATE_GIFT_CERTIFICATE = "UPDATE giftCertificate SET name=?, description=?, price=?, duration=?, creationDate=?, lastUpdateDate=? WHERE id= ?";
@@ -37,7 +43,6 @@ class GiftCertificateRepositoryImpl implements GiftCertificateRepository {
     public GiftCertificateRepositoryImpl(DataSource dataSource) {
 
         jdbcTemplate = new JdbcTemplate(dataSource);
-        namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 
     @Override
@@ -48,8 +53,12 @@ class GiftCertificateRepositoryImpl implements GiftCertificateRepository {
 
     @Override
     public Optional<GiftCertificate> findById(Long id) {
-        GiftCertificate certificate = jdbcTemplate.queryForObject(SQL_SELECT_GIFT_CERTIFICATE_BY_ID, new Object[]{id}, new GiftCertificateRowMapper());
-        return Optional.of(certificate);
+        try {
+            GiftCertificate certificate = jdbcTemplate.queryForObject(SQL_SELECT_GIFT_CERTIFICATE_BY_ID, new Object[]{id}, new GiftCertificateRowMapper());
+            return Optional.of(certificate);
+        } catch (EmptyResultDataAccessException exception) {
+            return Optional.empty();
+        }
     }
 
     @Override
@@ -141,20 +150,18 @@ class GiftCertificateRepositoryImpl implements GiftCertificateRepository {
 
     @Override
     public Optional<GiftCertificate> findByName(String name) {
-        GiftCertificate certificate = jdbcTemplate.queryForObject(SQL_SELECT_GIFT_CERTIFICATE_BY_NAME, new Object[]{name}, new GiftCertificateRowMapper());
-        return Optional.of(certificate);
+        try {
+            GiftCertificate certificate = jdbcTemplate.queryForObject(SQL_SELECT_GIFT_CERTIFICATE_BY_NAME, new Object[]{name}, new GiftCertificateRowMapper());
+            return Optional.of(certificate);
+        } catch (EmptyResultDataAccessException exception) {
+            return Optional.empty();
+        }
     }
 
     @Override
     public List<GiftCertificate> findAllByFilter(Map<String, String> filter) {
 
-        String sqlFilter = "SELECT giftcertificate.id, giftcertificate.name, giftcertificate.description,giftcertificate.price, giftcertificate.duration, giftcertificate.creationDate, giftcertificate.lastUpdateDate \n" +
-                "FROM giftcertificate\n" +
-                "LEFT JOIN certificate_tag\n" +
-                "ON giftcertificate.id = certificate_tag.certificateId\n" +
-                "LEFT JOIN tag \n" +
-                "ON certificate_tag.tagId = tag.id\n" +
-                "WHERE  \n";
+        String sqlFilter = SQL_SELECT_ALL_GIFT_CERTIFICATES_BY_FILTER;
         boolean isAddAnd = false;
 
         if (filter.get("tagName") != null) {

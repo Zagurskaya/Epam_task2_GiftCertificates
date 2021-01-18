@@ -3,6 +3,7 @@ package com.epam.esm.impl;
 import com.epam.esm.TagRepository;
 import com.epam.esm.model.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -47,8 +48,13 @@ public class TagRepositoryImpl implements TagRepository {
 
     @Override
     public Optional<Tag> findById(Long id) {
-        Tag tag = jdbcTemplate.queryForObject(SQL_SELECT_TAG_BY_ID, new Object[]{id}, new TagRowMapper());
-        return Optional.of(tag);
+        try {
+            Tag tag = jdbcTemplate.queryForObject(SQL_SELECT_TAG_BY_ID, new Object[]{id}, new TagRowMapper());
+            return Optional.of(tag);
+        } catch (
+                EmptyResultDataAccessException exception) {
+            return Optional.empty();
+        }
     }
 
     @Override
@@ -76,8 +82,12 @@ public class TagRepositoryImpl implements TagRepository {
 
     @Override
     public Optional<Tag> findByName(String name) {
-        Tag tag = jdbcTemplate.queryForObject(SQL_SELECT_TAG_BY_NAME, new Object[]{name}, new TagRowMapper());
-        return Optional.of(tag);
+        try {
+            Tag tag = jdbcTemplate.queryForObject(SQL_SELECT_TAG_BY_NAME, new Object[]{name}, new TagRowMapper());
+            return Optional.of(tag);
+        } catch (EmptyResultDataAccessException exception) {
+            return Optional.empty();
+        }
     }
 
     @Override

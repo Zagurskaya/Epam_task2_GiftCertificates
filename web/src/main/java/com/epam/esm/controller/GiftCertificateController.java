@@ -45,28 +45,19 @@ public class GiftCertificateController {
 
     @PostMapping(value = "/certificate")
     public ResponseEntity<Long> createGiftCertificate(@RequestBody GiftCertificateDTO giftCertificate) {
-        GiftCertificateDTO giftCertificateByName = giftCertificateService.findByName(giftCertificate.getName());
-        if (giftCertificateByName != null) {
-            return new ResponseEntity(HttpStatus.BAD_REQUEST);
-        }
         Long id = giftCertificateService.create(giftCertificate);
         return new ResponseEntity<>(id, HttpStatus.OK);
     }
 
     @PutMapping(value = "/certificate/{id}")
     public ResponseEntity updateGiftCertificate(@PathVariable("id") long id, @RequestBody GiftCertificateDTO updateGiftCertificate) {
-        GiftCertificateDTO giftCertificateDTO = giftCertificateService.findById(id);
-        if (giftCertificateDTO == null ||
-                giftCertificateDTO.getDescription() == null ||
-                giftCertificateDTO.getDuration() == null ||
-                giftCertificateDTO.getPrice() == null ||
-                giftCertificateDTO.getCreationDate() == null ||
-                giftCertificateDTO.getLastUpdateDate() == null ||
-                giftCertificateDTO.getTags() == null) {
-            return new ResponseEntity(HttpStatus.BAD_REQUEST);
-        }
-        GiftCertificateDTO giftCertificateByName = giftCertificateService.findByName(updateGiftCertificate.getName());
-        if (giftCertificateByName != null) {
+
+        if (updateGiftCertificate.getDescription() == null ||
+                updateGiftCertificate.getDuration() == null ||
+                updateGiftCertificate.getPrice() == null ||
+                updateGiftCertificate.getCreationDate() == null ||
+                updateGiftCertificate.getLastUpdateDate() == null ||
+                updateGiftCertificate.getTags() == null) {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
         updateGiftCertificate.setId(id);
@@ -75,10 +66,6 @@ public class GiftCertificateController {
 
     @PatchMapping(value = "/certificate/{id}")
     public ResponseEntity updatePartGiftCertificate(@PathVariable("id") long id, @RequestBody GiftCertificateDTO updateGiftCertificate) {
-        GiftCertificateDTO giftCertificateDTO = giftCertificateService.findById(id);
-        if (giftCertificateDTO == null) {
-            return new ResponseEntity(HttpStatus.BAD_REQUEST);
-        }
         if (updateGiftCertificate.getName() != null) {
             GiftCertificateDTO giftCertificateByName = giftCertificateService.findByName(updateGiftCertificate.getName());
             if (giftCertificateByName != null) {
@@ -87,7 +74,6 @@ public class GiftCertificateController {
         }
         updateGiftCertificate.setId(id);
         return giftCertificateService.updatePart(updateGiftCertificate) ? new ResponseEntity(HttpStatus.OK) : new ResponseEntity(HttpStatus.BAD_REQUEST);
-
     }
 
     @DeleteMapping(value = "/certificate/{id}")
