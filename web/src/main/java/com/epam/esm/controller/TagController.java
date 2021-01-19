@@ -3,6 +3,7 @@ package com.epam.esm.controller;
 import com.epam.esm.TagService;
 import com.epam.esm.exception.ServiceException;
 import com.epam.esm.model.TagDTO;
+import com.epam.esm.validator.TagValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,10 +15,12 @@ import java.util.List;
 public class TagController {
 
     private final TagService tagService;
+    private final TagValidator tagValidator;
 
     @Autowired
-    public TagController(TagService tagService) {
+    public TagController(TagService tagService, TagValidator tagValidator) {
         this.tagService = tagService;
+        this.tagValidator = tagValidator;
     }
 
     @GetMapping(value = "/tags")
@@ -32,6 +35,7 @@ public class TagController {
 
     @PostMapping(value = "/tag")
     public Long createTag(@RequestBody TagDTO tag) throws ServiceException {
+        tagValidator.createValidate(tag);
         return tagService.create(tag);
     }
 

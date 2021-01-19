@@ -4,6 +4,7 @@ import com.epam.esm.GiftCertificateService;
 import com.epam.esm.exception.ServiceException;
 import com.epam.esm.form.Filter;
 import com.epam.esm.model.GiftCertificateDTO;
+import com.epam.esm.validator.GiftCertificateValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,10 +18,12 @@ import java.util.Map;
 public class GiftCertificateController {
 
     private final GiftCertificateService giftCertificateService;
+    private final GiftCertificateValidator giftCertificateValidator;
 
     @Autowired
-    public GiftCertificateController(GiftCertificateService giftCertificateService) {
+    public GiftCertificateController(GiftCertificateService giftCertificateService, GiftCertificateValidator giftCertificateValidator) {
         this.giftCertificateService = giftCertificateService;
+        this.giftCertificateValidator = giftCertificateValidator;
     }
 
     @GetMapping(value = "/certificates")
@@ -45,6 +48,7 @@ public class GiftCertificateController {
 
     @PostMapping(value = "/certificate")
     public ResponseEntity<Long> createGiftCertificate(@RequestBody GiftCertificateDTO giftCertificate) {
+        giftCertificateValidator.createValidate(giftCertificate);
         Long id = giftCertificateService.create(giftCertificate);
         return new ResponseEntity<>(id, HttpStatus.OK);
     }
@@ -52,20 +56,14 @@ public class GiftCertificateController {
     @PutMapping(value = "/certificate/{id}")
     public ResponseEntity updateGiftCertificate(@PathVariable("id") long id, @RequestBody GiftCertificateDTO updateGiftCertificate) {
 
-        if (updateGiftCertificate.getDescription() == null ||
-                updateGiftCertificate.getDuration() == null ||
-                updateGiftCertificate.getPrice() == null ||
-                updateGiftCertificate.getCreationDate() == null ||
-                updateGiftCertificate.getLastUpdateDate() == null ||
-                updateGiftCertificate.getTags() == null) {
-            return new ResponseEntity(HttpStatus.BAD_REQUEST);
-        }
+        giftCertificateValidator.updateValidate(updateGiftCertificate);
         updateGiftCertificate.setId(id);
         return giftCertificateService.update(updateGiftCertificate) ? new ResponseEntity(HttpStatus.OK) : new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
 
     @PatchMapping(value = "/certificate/{id}")
     public ResponseEntity updatePartGiftCertificate(@PathVariable("id") long id, @RequestBody GiftCertificateDTO updateGiftCertificate) {
+        giftCertificateValidator.updatePartValidate(updateGiftCertificate);
         if (updateGiftCertificate.getName() != null) {
             GiftCertificateDTO giftCertificateByName = giftCertificateService.findByName(updateGiftCertificate.getName());
             if (giftCertificateByName != null) {
