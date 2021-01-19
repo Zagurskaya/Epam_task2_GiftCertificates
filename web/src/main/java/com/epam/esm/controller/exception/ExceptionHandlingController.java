@@ -3,54 +3,43 @@ package com.epam.esm.controller.exception;
 import com.epam.esm.exception.DaoException;
 import com.epam.esm.exception.ServiceException;
 import org.springframework.dao.DataAccessException;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-@Controller
+@ControllerAdvice
 public class ExceptionHandlingController {
-    Logger log = Logger.getLogger(ExceptionHandlingController.class.getName());
 
-    @ExceptionHandler({SQLException.class, DataAccessException.class})
-    public String databaseError() {
-        return "databaseError ";
+    @ExceptionHandler()
+    public ResponseEntity<ErrorResponse> SQLError(SQLException exc) {
+        ErrorResponse error = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), exc.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @ExceptionHandler(ServiceException.class)
-    public ModelAndView ServiceExceptionError(HttpServletRequest req, Exception ex) {
-        log.log(Level.SEVERE, "Request: " + req.getRequestURL() + " raised " + ex);
-
-        ModelAndView mav = new ModelAndView();
-        mav.addObject("errorMessage", ex);
-        mav.addObject("url", req.getRequestURL());
-        mav.setViewName("error");
-        return mav;
+    @ExceptionHandler()
+    public ResponseEntity<ErrorResponse> databaseError(DataAccessException exc) {
+        ErrorResponse error = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), exc.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @ExceptionHandler({DaoException.class})
-    public ModelAndView DaoExceptionError(HttpServletRequest req, Exception ex) {
-        log.log(Level.SEVERE, "Request: " + req.getRequestURL() + " raised " + ex);
-
-        ModelAndView mav = new ModelAndView();
-        mav.addObject("errorMessage", ex);
-        mav.addObject("url", req.getRequestURL());
-        mav.setViewName("error");
-        return mav;
+    @ExceptionHandler()
+    public ResponseEntity<ErrorResponse> ServiceError(ServiceException exc) {
+        ErrorResponse error = new ErrorResponse(HttpStatus.NOT_FOUND.value(), exc.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(Exception.class)
-    public ModelAndView handleError(HttpServletRequest req, Exception ex) {
-        log.log(Level.SEVERE, "Request: " + req.getRequestURL() + " raised " + ex);
+    @ExceptionHandler()
+    public ResponseEntity<ErrorResponse> DaoError(DaoException exc) {
+        ErrorResponse error = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), exc.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 
-        ModelAndView mav = new ModelAndView();
-        mav.addObject("errorMessage", ex);
-        mav.addObject("url", req.getRequestURL());
-        mav.setViewName("error");
-        return mav;
+    @ExceptionHandler
+    public ResponseEntity<ErrorResponse> handleException(Exception exc) {
+        ErrorResponse error = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), exc.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
