@@ -6,13 +6,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class TagValidator extends DateValidator {
 
-    private static final String INITIALS_SYMBOLS_AND_NUMBER_VALIDATION_REGEX = "[A-Za-z0-9]{1,}";
+    public static final String ALPHABET_NUMBER_UNDERSCORE_MINUS_BLANK_VALIDATE_PATTERN = "[a-zA-Z0-9\\s_-]{1,}";
 
     public void createValidate(TagDTO tagDTO) {
         if (tagDTO.getName() == null) {
             throw new IllegalArgumentException("the field cannot be null : name");
         } else {
-            fieldValidate(tagDTO.getName(), "name", INITIALS_SYMBOLS_AND_NUMBER_VALIDATION_REGEX);
+            fieldValidate(tagDTO.getName(), "name", ALPHABET_NUMBER_UNDERSCORE_MINUS_BLANK_VALIDATE_PATTERN);
         }
 
     }

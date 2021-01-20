@@ -64,12 +64,6 @@ public class GiftCertificateController {
     @PatchMapping(value = "/certificate/{id}")
     public ResponseEntity updatePartGiftCertificate(@PathVariable("id") long id, @RequestBody GiftCertificateDTO updateGiftCertificate) {
         giftCertificateValidator.updatePartValidate(updateGiftCertificate);
-        if (updateGiftCertificate.getName() != null) {
-            GiftCertificateDTO giftCertificateByName = giftCertificateService.findByName(updateGiftCertificate.getName());
-            if (giftCertificateByName != null) {
-                return new ResponseEntity(HttpStatus.BAD_REQUEST);
-            }
-        }
         updateGiftCertificate.setId(id);
         return giftCertificateService.updatePart(updateGiftCertificate) ? new ResponseEntity(HttpStatus.OK) : new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
