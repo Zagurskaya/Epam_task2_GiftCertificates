@@ -181,6 +181,20 @@ class GiftCertificateRepositoryImpl implements GiftCertificateRepository {
             }
             sqlFilter = sqlFilter + " giftcertificate.description LIKE ?";
         }
+        if (filter.get("orderBy") != null) {
+            if (filter.get("orderBy").equals("name")) {
+                sqlFilter = sqlFilter + "ORDER BY giftcertificate.name ";
+            }
+            if (filter.get("orderBy").equals("date")) {
+                sqlFilter = sqlFilter + "ORDER BY giftcertificate.creationDate ";
+            }
+            if (filter.get("orderValue") != null) {
+                if (filter.get("orderValue").toUpperCase().equals("DESC")) {
+                    sqlFilter = sqlFilter + "DESC";
+                }
+            }
+            sqlFilter = sqlFilter.replaceAll("WHERE  \nORDER BY", "ORDER BY");
+        }
 
         String finalSqlFilter = sqlFilter;
         List<GiftCertificate> certificates = jdbcTemplate.query(

@@ -1,6 +1,5 @@
 package com.epam.esm;
 
-import com.epam.esm.exception.DaoException;
 import com.epam.esm.model.Tag;
 
 import java.util.List;
@@ -11,7 +10,6 @@ public interface TagRepository {
      * Get a list of Tags
      *
      * @return list of Tags
-     * @throws DaoException database access error or other errors.
      */
     List<Tag> findAll();
 
@@ -20,7 +18,6 @@ public interface TagRepository {
      *
      * @param id - ID
      * @return object
-     * @throws DaoException database access error or other errors.
      */
     Optional<Tag> findById(Long id);
 

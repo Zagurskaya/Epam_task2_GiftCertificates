@@ -8,7 +8,9 @@ import lombok.ToString;
 @Setter
 @ToString
 public class FilterForm {
-
     private String tagName;
-
+    private String partName;
+    private String partDescription;
+    private String orderBy;
+    private String orderValue;
 }

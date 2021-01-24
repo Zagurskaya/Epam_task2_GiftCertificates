@@ -2,7 +2,7 @@ package com.epam.esm.controller;
 
 import com.epam.esm.GiftCertificateService;
 import com.epam.esm.exception.ServiceException;
-import com.epam.esm.form.Filter;
+import com.epam.esm.request.FilterForm;
 import com.epam.esm.model.GiftCertificateDTO;
 import com.epam.esm.validator.GiftCertificateValidator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,33 +27,36 @@ public class GiftCertificateController {
     }
 
     @GetMapping(value = "/certificates")
-    public List<GiftCertificateDTO> getGiftCertificates(Filter filter) throws ServiceException {
+    public ResponseEntity<List<GiftCertificateDTO>> getGiftCertificates(FilterForm filterForm) throws ServiceException {
         List<GiftCertificateDTO> certificateDTOS = null;
         Map<String, String> filterMap = new HashMap<>();
-        if (filter.getTagName() != null) filterMap.put("tagName", filter.getTagName());
-        if (filter.getPartName() != null) filterMap.put("partName", filter.getPartName());
-        if (filter.getPartDescription() != null) filterMap.put("partDescription", filter.getPartDescription());
+        if (filterForm.getTagName() != null) filterMap.put("tagName", filterForm.getTagName());
+        if (filterForm.getPartName() != null) filterMap.put("partName", filterForm.getPartName());
+        if (filterForm.getPartDescription() != null) filterMap.put("partDescription", filterForm.getPartDescription());
+        if (filterForm.getOrderBy() != null) filterMap.put("orderBy", filterForm.getOrderBy());
+        if (filterForm.getOrderValue() != null) filterMap.put("orderValue", filterForm.getOrderValue());
         if (filterMap.isEmpty()) {
             certificateDTOS = giftCertificateService.findAll();
         } else {
             certificateDTOS = giftCertificateService.findAllByFilter(filterMap);
         }
-        return certificateDTOS;
+        return new ResponseEntity<>(certificateDTOS, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/certificate/{id}")
-    public GiftCertificateDTO getGiftCertificateById(@PathVariable("id") long id) {
-        return giftCertificateService.findById(id);
+    @GetMapping(value = "/certificates/{id}")
+    public ResponseEntity<GiftCertificateDTO> getGiftCertificateById(@PathVariable("id") long id) {
+        GiftCertificateDTO giftCertificateDTO = giftCertificateService.findById(id);
+        return new ResponseEntity<>(giftCertificateDTO, HttpStatus.OK);
     }
 
-    @PostMapping(value = "/certificate")
-    public ResponseEntity<Long> createGiftCertificate(@RequestBody GiftCertificateDTO giftCertificate) {
+    @PostMapping(value = "/certificates")
+    public ResponseEntity<String> createGiftCertificate(@RequestBody GiftCertificateDTO giftCertificate) {
         giftCertificateValidator.createValidate(giftCertificate);
         Long id = giftCertificateService.create(giftCertificate);
-        return new ResponseEntity<>(id, HttpStatus.OK);
+        return new ResponseEntity<>("id=" + id, HttpStatus.OK);
     }
 
-    @PutMapping(value = "/certificate/{id}")
+    @PutMapping(value = "/certificates/{id}")
     public ResponseEntity updateGiftCertificate(@PathVariable("id") long id, @RequestBody GiftCertificateDTO updateGiftCertificate) {
 
         giftCertificateValidator.updateValidate(updateGiftCertificate);
@@ -61,14 +64,14 @@ public class GiftCertificateController {
         return giftCertificateService.update(updateGiftCertificate) ? new ResponseEntity(HttpStatus.OK) : new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
 
-    @PatchMapping(value = "/certificate/{id}")
+    @PatchMapping(value = "/certificates/{id}")
     public ResponseEntity updatePartGiftCertificate(@PathVariable("id") long id, @RequestBody GiftCertificateDTO updateGiftCertificate) {
         giftCertificateValidator.updatePartValidate(updateGiftCertificate);
         updateGiftCertificate.setId(id);
         return giftCertificateService.updatePart(updateGiftCertificate) ? new ResponseEntity(HttpStatus.OK) : new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
 
-    @DeleteMapping(value = "/certificate/{id}")
+    @DeleteMapping(value = "/certificates/{id}")
     public ResponseEntity deleteGiftCertificate(@PathVariable("id") long id) {
         GiftCertificateDTO giftCertificate = giftCertificateService.findById(id);
         if (giftCertificate == null) {

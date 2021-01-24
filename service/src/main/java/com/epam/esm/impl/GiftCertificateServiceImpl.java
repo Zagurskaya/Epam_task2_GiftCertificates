@@ -56,7 +56,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Long create(GiftCertificateDTO giftCertificateDTO) {
         if (giftCertificateRepository.findByName(giftCertificateDTO.getName()).isPresent()) {
             throw new ServiceException("Certificate found with name " + giftCertificateDTO.getName());
@@ -130,32 +130,10 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         result = giftCertificateRepository.update(updateGiftCertificate);
 
         List<TagDTO> tagDTOList = giftCertificateDTO.getTags();
-        if (tagDTOList.size() != 0) {
-            List<Tag> oldTagList = tagRepository.findListTagsByCertificateId(giftCertificate.getId());
-            List<TagDTO> updateTagDTOList = tagDTOList.stream().filter(task -> task.getId() != null).collect(Collectors.toList());
-            List<TagDTO> createTagList = tagDTOList.stream().filter(task -> task.getId() == null).collect(Collectors.toList());
-
-            List<Tag> deleteTagList = new ArrayList<>(oldTagList);
-            deleteTagList.removeAll(updateTagDTOList.stream().map(tagConverter::toEntity).collect(Collectors.toList()));
-
-            List<TagDTO> addTagList = new ArrayList<>(tagDTOList);
-            addTagList.removeAll(createTagList);
-            addTagList.removeAll(oldTagList.stream().map(tagConverter::toDTO).collect(Collectors.toList()));
-
-            for (TagDTO tagDTO : createTagList) {
-                Optional<Tag> tag = tagRepository.findByName(tagDTO.getName());
-                if (!tag.isPresent()) {
-                    Tag newTag = new Tag();
-                    newTag.setName(tagDTO.getName());
-                    Long newTagId = tagRepository.create(newTag);
-                    tagRepository.createConnectionBetweenTagAndGiftCertificate(newTagId, giftCertificate.getId());
-                } else {
-                    tagRepository.createConnectionBetweenTagAndGiftCertificate(tag.get().getId(), giftCertificate.getId());
-                }
-            }
-            addTagList.forEach(tagDTO -> tagRepository.createConnectionBetweenTagAndGiftCertificate(tagDTO.getId(), giftCertificate.getId()));
-
-            deleteTagList.forEach(tag -> tagRepository.deleteConnectionBetweenTagAndGiftCertificate(tag.getId(), giftCertificate.getId()));
+        List<Tag> tagListOld = tagRepository.findListTagsByCertificateId(giftCertificate.getId());
+        if ((tagDTOList.size() != 0)
+                || (tagDTOList.size() == 0 && tagListOld.size() != 0)) {
+            updateTagListForGiftCertificate(tagDTOList, giftCertificate);
         }
         return result;
     }
@@ -200,32 +178,11 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         result = giftCertificateRepository.updatePart(updateGiftCertificate);
 
         List<TagDTO> tagDTOList = giftCertificateDTO.getTags();
-        if (tagDTOList != null && tagDTOList.size() != 0) {
-            List<Tag> oldTagList = tagRepository.findListTagsByCertificateId(giftCertificate.getId());
-            List<TagDTO> updateTagDTOList = tagDTOList.stream().filter(task -> task.getId() != null).collect(Collectors.toList());
-            List<TagDTO> createTagList = tagDTOList.stream().filter(task -> task.getId() == null).collect(Collectors.toList());
+        List<Tag> tagListOld = tagRepository.findListTagsByCertificateId(giftCertificate.getId());
 
-            List<Tag> deleteTagList = new ArrayList<>(oldTagList);
-            deleteTagList.removeAll(updateTagDTOList.stream().map(tagConverter::toEntity).collect(Collectors.toList()));
-
-            List<TagDTO> addTagList = new ArrayList<>(tagDTOList);
-            addTagList.removeAll(createTagList);
-            addTagList.removeAll(oldTagList.stream().map(tagConverter::toDTO).collect(Collectors.toList()));
-
-            for (TagDTO tagDTO : createTagList) {
-                Optional<Tag> tag = tagRepository.findByName(tagDTO.getName());
-                if (!tag.isPresent()) {
-                    Tag newTag = new Tag();
-                    newTag.setName(tagDTO.getName());
-                    Long newTagId = tagRepository.create(newTag);
-                    tagRepository.createConnectionBetweenTagAndGiftCertificate(newTagId, giftCertificate.getId());
-                } else {
-                    tagRepository.createConnectionBetweenTagAndGiftCertificate(tag.get().getId(), giftCertificate.getId());
-                }
-            }
-            addTagList.forEach(tagDTO -> tagRepository.createConnectionBetweenTagAndGiftCertificate(tagDTO.getId(), giftCertificate.getId()));
-
-            deleteTagList.forEach(tag -> tagRepository.deleteConnectionBetweenTagAndGiftCertificate(tag.getId(), giftCertificate.getId()));
+        if ((tagDTOList != null && tagDTOList.size() != 0)
+                || ((tagDTOList != null && tagDTOList.size() == 0 && tagListOld.size() != 0))) {
+            updateTagListForGiftCertificate(tagDTOList, giftCertificate);
         }
         return result;
     }
@@ -243,4 +200,32 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         return giftCertificateDTOS;
     }
 
+    private void updateTagListForGiftCertificate(List<TagDTO> tagDTOList, GiftCertificate giftCertificate) {
+
+        List<Tag> oldTagList = tagRepository.findListTagsByCertificateId(giftCertificate.getId());
+        List<TagDTO> updateTagDTOList = tagDTOList.stream().filter(task -> task.getId() != null).collect(Collectors.toList());
+        List<TagDTO> createTagList = tagDTOList.stream().filter(task -> task.getId() == null).collect(Collectors.toList());
+
+        List<Tag> deleteTagList = new ArrayList<>(oldTagList);
+        deleteTagList.removeAll(updateTagDTOList.stream().map(tagConverter::toEntity).collect(Collectors.toList()));
+
+        List<TagDTO> addTagList = new ArrayList<>(tagDTOList);
+        addTagList.removeAll(createTagList);
+        addTagList.removeAll(oldTagList.stream().map(tagConverter::toDTO).collect(Collectors.toList()));
+
+        for (TagDTO tagDTO : createTagList) {
+            Optional<Tag> tag = tagRepository.findByName(tagDTO.getName());
+            if (!tag.isPresent()) {
+                Tag newTag = new Tag();
+                newTag.setName(tagDTO.getName());
+                Long newTagId = tagRepository.create(newTag);
+                tagRepository.createConnectionBetweenTagAndGiftCertificate(newTagId, giftCertificate.getId());
+            } else {
+                tagRepository.createConnectionBetweenTagAndGiftCertificate(tag.get().getId(), giftCertificate.getId());
+            }
+        }
+        addTagList.forEach(tagDTO -> tagRepository.createConnectionBetweenTagAndGiftCertificate(tagDTO.getId(), giftCertificate.getId()));
+
+        deleteTagList.forEach(tag -> tagRepository.deleteConnectionBetweenTagAndGiftCertificate(tag.getId(), giftCertificate.getId()));
+    }
 }

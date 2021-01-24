@@ -24,22 +24,24 @@ public class TagController {
     }
 
     @GetMapping(value = "/tags")
-    public List<TagDTO> getTags() throws ServiceException {
-        return tagService.findAll();
+    public ResponseEntity<List<TagDTO>> getTags() throws ServiceException {
+        List<TagDTO> tags = tagService.findAll();
+        return new ResponseEntity<>(tags, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/tag/{id}")
-    public TagDTO getTagById(@PathVariable("id") long id) throws ServiceException {
-        return tagService.findById(id);
+    @GetMapping(value = "/tags/{id}")
+    public ResponseEntity<TagDTO> getTagById(@PathVariable("id") long id) throws ServiceException {
+        return new ResponseEntity<>(tagService.findById(id), HttpStatus.OK);
     }
 
-    @PostMapping(value = "/tag")
-    public Long createTag(@RequestBody TagDTO tag) throws ServiceException {
+    @PostMapping(value = "/tags")
+    public ResponseEntity<String> createTag(@RequestBody TagDTO tag) throws ServiceException {
         tagValidator.createValidate(tag);
-        return tagService.create(tag);
+        Long id = tagService.create(tag);
+        return new ResponseEntity<>("id = " + id, HttpStatus.OK);
     }
 
-    @DeleteMapping(value = "/tag/{id}")
+    @DeleteMapping(value = "/tags/{id}")
     public ResponseEntity deleteTag(@PathVariable("id") long id) throws ServiceException {
         TagDTO tag = tagService.findById(id);
         if (tag == null) {
