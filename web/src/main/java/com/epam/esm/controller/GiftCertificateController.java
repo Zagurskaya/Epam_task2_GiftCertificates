@@ -1,7 +1,6 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.GiftCertificateService;
-import com.epam.esm.exception.ServiceException;
 import com.epam.esm.request.FilterForm;
 import com.epam.esm.model.GiftCertificateDTO;
 import com.epam.esm.validator.GiftCertificateValidator;
@@ -27,7 +26,7 @@ public class GiftCertificateController {
     }
 
     @GetMapping(value = "/certificates")
-    public ResponseEntity<List<GiftCertificateDTO>> getGiftCertificates(FilterForm filterForm) throws ServiceException {
+    public ResponseEntity<List<GiftCertificateDTO>> getGiftCertificates(FilterForm filterForm) {
         List<GiftCertificateDTO> certificateDTOS = null;
         Map<String, String> filterMap = new HashMap<>();
         if (filterForm.getTagName() != null) filterMap.put("tagName", filterForm.getTagName());

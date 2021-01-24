@@ -3,7 +3,7 @@ package com.epam.esm.impl;
 import com.epam.esm.TagRepository;
 import com.epam.esm.TagService;
 import com.epam.esm.converter.TagConverter;
-import com.epam.esm.exception.ServiceException;
+import com.epam.esm.exception.EntityNotFoundException;
 import com.epam.esm.model.Tag;
 import com.epam.esm.model.TagDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public TagDTO findById(Long id) {
-        Tag tag = tagRepository.findById(id).orElseThrow(() -> new ServiceException("Tag not found with id " + id));
+        Tag tag = tagRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Tag not found with id " + id));
         return tagConverter.toDTO(tag);
     }
 
@@ -47,7 +47,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public boolean delete(Long id) {
-        Tag tag = tagRepository.findById(id).orElseThrow(() -> new ServiceException("Tag not found with id " + id));
+        Tag tag = tagRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Tag not found with id " + id));
         if (tag == null) {
             return false;
         }

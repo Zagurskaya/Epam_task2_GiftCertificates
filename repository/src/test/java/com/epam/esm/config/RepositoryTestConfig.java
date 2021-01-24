@@ -16,7 +16,7 @@ import javax.sql.DataSource;
 @EnableTransactionManagement
 @ComponentScan(basePackages = "com.epam.esm.*")
 @PropertySource(value = "classpath:/jdbc.properties")
-public class RepositoryConfig {
+public class RepositoryTestConfig {
 
     @Autowired
     Environment env;
@@ -24,10 +24,10 @@ public class RepositoryConfig {
     @Bean
     public DataSource dataSource() {
         DriverManagerDataSource driverManagerDataSource = new DriverManagerDataSource();
-        driverManagerDataSource.setDriverClassName(env.getProperty("database.driver"));
-        driverManagerDataSource.setUrl(env.getProperty("database.url"));
-        driverManagerDataSource.setUsername(env.getProperty("database.username"));
-        driverManagerDataSource.setPassword(env.getProperty("database.password"));
+        driverManagerDataSource.setDriverClassName(env.getProperty("test.database.driver"));
+        driverManagerDataSource.setUrl(env.getProperty("test.database.url"));
+        driverManagerDataSource.setUsername(env.getProperty("test.database.username"));
+        driverManagerDataSource.setPassword(env.getProperty("test.database.password"));
         return driverManagerDataSource;
     }
 

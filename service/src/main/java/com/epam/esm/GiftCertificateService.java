@@ -1,6 +1,5 @@
 package com.epam.esm;
 
-import com.epam.esm.exception.ServiceException;
 import com.epam.esm.model.GiftCertificateDTO;
 
 import java.util.List;
@@ -12,59 +11,53 @@ public interface GiftCertificateService {
      *
      * @param id - ID
      * @return GiftCertificateDTO
-     * @throws ServiceException error during execution of logical blocks and actions
      */
-    GiftCertificateDTO findById(Long id) throws ServiceException;
+    GiftCertificateDTO findById(Long id);
 
     /**
      * Create GiftCertificateDTO
      *
      * @param giftCertificateDTO - GiftCertificateDTO
      * @return true on successful createCheckEn
-     * @throws ServiceException error during execution of logical blocks and actions
      */
-    Long create(GiftCertificateDTO giftCertificateDTO) throws ServiceException;
+    Long create(GiftCertificateDTO giftCertificateDTO);
 
     /**
      * Update GiftCertificateDTO
      *
      * @param giftCertificateDTO - GiftCertificateDTO
      * @return true on successful update
-     * @throws ServiceException error during execution of logical blocks and actions
      */
-    boolean update(GiftCertificateDTO giftCertificateDTO) throws ServiceException;
+    boolean update(GiftCertificateDTO giftCertificateDTO);
 
     /**
      * Delete GiftCertificateDTO
      *
      * @param id - GiftCertificateDTO id
      * @return true on successful delete
-     * @throws ServiceException error during execution of logical blocks and actions
      */
-    boolean delete(Long id) throws ServiceException;
+    boolean delete(Long id);
 
     /**
      * Get giftCertificateDTO List
      *
      * @return giftCertificateDTO List
      */
-    List<GiftCertificateDTO> findAll() throws ServiceException;
+    List<GiftCertificateDTO> findAll();
 
     /**
      * Search GiftCertificateDTO by name
      *
      * @param name - GiftCertificate name
      * @return GiftCertificateDTO
-     * @throws ServiceException error during execution of logical blocks and actions
      */
-    GiftCertificateDTO findByName(String name) throws ServiceException;
+    GiftCertificateDTO findByName(String name);
 
     /**
      * Update part GiftCertificateDTO
      *
      * @param giftCertificateDTO - GiftCertificateDTO
      * @return true on successful update
-     * @throws ServiceException error during execution of logical blocks and actions
      */
     boolean updatePart(GiftCertificateDTO giftCertificateDTO);
 

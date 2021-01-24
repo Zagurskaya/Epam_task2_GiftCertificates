@@ -5,7 +5,8 @@ import com.epam.esm.GiftCertificateService;
 import com.epam.esm.TagRepository;
 import com.epam.esm.converter.GiftCertificateConverter;
 import com.epam.esm.converter.TagConverter;
-import com.epam.esm.exception.ServiceException;
+import com.epam.esm.exception.EntityAlreadyExistException;
+import com.epam.esm.exception.EntityNotFoundException;
 import com.epam.esm.model.GiftCertificate;
 import com.epam.esm.model.GiftCertificateDTO;
 import com.epam.esm.model.Tag;
@@ -44,9 +45,9 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Override
     @Transactional(readOnly = true)
-    public GiftCertificateDTO findById(Long id) throws ServiceException {
+    public GiftCertificateDTO findById(Long id) {
         GiftCertificate giftCertificate = giftCertificateRepository.findById(id)
-                .orElseThrow(() -> new ServiceException("Certificate not found with id " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Certificate not found with id " + id));
         List<Tag> tags = tagRepository.findListTagsByCertificateId(id);
 
         GiftCertificateDTO giftCertificateDTO = giftCertificateConverter.toDTO(giftCertificate);
@@ -56,10 +57,10 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public Long create(GiftCertificateDTO giftCertificateDTO) {
         if (giftCertificateRepository.findByName(giftCertificateDTO.getName()).isPresent()) {
-            throw new ServiceException("Certificate found with name " + giftCertificateDTO.getName());
+            throw new EntityNotFoundException("Certificate found with name " + giftCertificateDTO.getName());
         }
         GiftCertificate giftCertificate = giftCertificateConverter.toEntity(giftCertificateDTO);
         giftCertificate.setCreationDate(LocalDateTime.now());
@@ -96,7 +97,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Override
     @Transactional(readOnly = true)
-    public GiftCertificateDTO findByName(String name) throws ServiceException {
+    public GiftCertificateDTO findByName(String name) {
         GiftCertificateDTO giftCertificateDTO = null;
         Optional<GiftCertificate> giftCertificate = giftCertificateRepository.findByName(name);
         if (giftCertificate.isPresent()) {
@@ -113,11 +114,11 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     public boolean update(GiftCertificateDTO giftCertificateDTO) {
         boolean result;
         GiftCertificate giftCertificate = giftCertificateRepository.findById(giftCertificateDTO.getId())
-                .orElseThrow(() -> new ServiceException("Certificate not found with id " + giftCertificateDTO.getId()));
+                .orElseThrow(() -> new EntityNotFoundException("Certificate not found with id " + giftCertificateDTO.getId()));
 
         Optional<GiftCertificate> giftCertificateByName = giftCertificateRepository.findByName(giftCertificateDTO.getName());
         if (giftCertificateByName.isPresent() && giftCertificateByName.get().getId() != giftCertificateDTO.getId()) {
-            throw new ServiceException("Certificate found with name " + giftCertificateDTO.getName());
+            throw new EntityAlreadyExistException("Certificate found with name " + giftCertificateDTO.getName());
         }
         GiftCertificate updateGiftCertificate = new GiftCertificate();
         updateGiftCertificate.setId(giftCertificate.getId());
@@ -140,10 +141,10 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Override
     @Transactional
-    public boolean delete(Long id) throws ServiceException {
+    public boolean delete(Long id) {
         boolean result;
         GiftCertificate giftCertificate = giftCertificateRepository.findById(id)
-                .orElseThrow(() -> new ServiceException("Certificate not found with id " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Certificate not found with id " + id));
         List<Tag> tagList = tagRepository.findListTagsByCertificateId(giftCertificate.getId());
         tagList.forEach(tag -> tagRepository.deleteConnectionBetweenTagAndGiftCertificate(tag.getId(), id));
         result = giftCertificateRepository.delete(id);
@@ -154,11 +155,11 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     public boolean updatePart(GiftCertificateDTO giftCertificateDTO) {
         boolean result;
         GiftCertificate giftCertificate = giftCertificateRepository.findById(giftCertificateDTO.getId())
-                .orElseThrow(() -> new ServiceException("Certificate not found with id " + giftCertificateDTO.getId()));
+                .orElseThrow(() -> new EntityNotFoundException("Certificate not found with id " + giftCertificateDTO.getId()));
 
         Optional<GiftCertificate> giftCertificateByName = giftCertificateRepository.findByName(giftCertificateDTO.getName());
         if (giftCertificateByName.isPresent() && giftCertificateByName.get().getId() != giftCertificateDTO.getId()) {
-            throw new ServiceException("Certificate found with name " + giftCertificateDTO.getName());
+            throw new EntityAlreadyExistException("Certificate found with name " + giftCertificateDTO.getName());
         }
         GiftCertificate updateGiftCertificate = new GiftCertificate();
         updateGiftCertificate.setId(giftCertificate.getId());

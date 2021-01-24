@@ -1,7 +1,6 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.TagService;
-import com.epam.esm.exception.ServiceException;
 import com.epam.esm.model.TagDTO;
 import com.epam.esm.validator.TagValidator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,25 +23,25 @@ public class TagController {
     }
 
     @GetMapping(value = "/tags")
-    public ResponseEntity<List<TagDTO>> getTags() throws ServiceException {
+    public ResponseEntity<List<TagDTO>> getTags() {
         List<TagDTO> tags = tagService.findAll();
         return new ResponseEntity<>(tags, HttpStatus.OK);
     }
 
     @GetMapping(value = "/tags/{id}")
-    public ResponseEntity<TagDTO> getTagById(@PathVariable("id") long id) throws ServiceException {
+    public ResponseEntity<TagDTO> getTagById(@PathVariable("id") long id) {
         return new ResponseEntity<>(tagService.findById(id), HttpStatus.OK);
     }
 
     @PostMapping(value = "/tags")
-    public ResponseEntity<String> createTag(@RequestBody TagDTO tag) throws ServiceException {
+    public ResponseEntity<String> createTag(@RequestBody TagDTO tag) {
         tagValidator.createValidate(tag);
         Long id = tagService.create(tag);
         return new ResponseEntity<>("id = " + id, HttpStatus.OK);
     }
 
     @DeleteMapping(value = "/tags/{id}")
-    public ResponseEntity deleteTag(@PathVariable("id") long id) throws ServiceException {
+    public ResponseEntity deleteTag(@PathVariable("id") long id) {
         TagDTO tag = tagService.findById(id);
         if (tag == null) {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
