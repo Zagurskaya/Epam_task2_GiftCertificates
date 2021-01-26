@@ -5,8 +5,6 @@ import com.epam.esm.GiftCertificateService;
 import com.epam.esm.TagRepository;
 import com.epam.esm.converter.GiftCertificateConverter;
 import com.epam.esm.converter.TagConverter;
-import com.epam.esm.exception.EntityAlreadyExistException;
-import com.epam.esm.exception.EntityNotFoundException;
 import com.epam.esm.model.GiftCertificate;
 import com.epam.esm.model.GiftCertificateDTO;
 import com.epam.esm.model.Tag;
@@ -46,8 +44,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     @Transactional(readOnly = true)
     public GiftCertificateDTO findById(Long id) {
-        GiftCertificate giftCertificate = giftCertificateRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Certificate not found with id " + id));
+        GiftCertificate giftCertificate = giftCertificateRepository.findById(id);
         List<Tag> tags = tagRepository.findListTagsByCertificateId(id);
 
         GiftCertificateDTO giftCertificateDTO = giftCertificateConverter.toDTO(giftCertificate);
@@ -59,25 +56,20 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     @Transactional
     public Long create(GiftCertificateDTO giftCertificateDTO) {
-        if (giftCertificateRepository.findByName(giftCertificateDTO.getName()).isPresent()) {
-            throw new EntityNotFoundException("Certificate found with name " + giftCertificateDTO.getName());
-        }
         GiftCertificate giftCertificate = giftCertificateConverter.toEntity(giftCertificateDTO);
         giftCertificate.setCreationDate(LocalDateTime.now());
         giftCertificate.setLastUpdateDate(LocalDateTime.now());
         Long id = giftCertificateRepository.create(giftCertificate);
         List<TagDTO> tagDTOList = giftCertificateDTO.getTags();
-        if (tagDTOList.size() != 0) {
-            tagDTOList.forEach(tagDTO -> {
-                Optional<Tag> tagByName = tagRepository.findByName(tagDTO.getName());
-                if (!tagByName.isPresent()) {
-                    Long tagId = tagRepository.create(tagConverter.toEntity(tagDTO));
-                    tagRepository.createConnectionBetweenTagAndGiftCertificate(tagId, id);
-                } else {
-                    tagRepository.createConnectionBetweenTagAndGiftCertificate(tagByName.get().getId(), id);
-                }
-            });
-        }
+        tagDTOList.forEach(tagDTO -> {
+            Optional<Tag> tagByName = tagRepository.findByName(tagDTO.getName());
+            if (!tagByName.isPresent()) {
+                Long tagId = tagRepository.create(tagConverter.toEntity(tagDTO));
+                tagRepository.createConnectionBetweenTagAndGiftCertificate(tagId, id);
+            } else {
+                tagRepository.createConnectionBetweenTagAndGiftCertificate(tagByName.get().getId(), id);
+            }
+        });
         return id;
     }
 
@@ -96,46 +88,17 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public GiftCertificateDTO findByName(String name) {
-        GiftCertificateDTO giftCertificateDTO = null;
-        Optional<GiftCertificate> giftCertificate = giftCertificateRepository.findByName(name);
-        if (giftCertificate.isPresent()) {
-            List<Tag> tags = tagRepository.findListTagsByCertificateId(giftCertificate.get().getId());
-            giftCertificateDTO = giftCertificateConverter.toDTO(giftCertificate.get());
-            List<TagDTO> tagDTOList = tags.stream().map(tagConverter::toDTO).collect(Collectors.toList());
-            giftCertificateDTO.setTags(tagDTOList);
-        }
-        return giftCertificateDTO;
-    }
-
-    @Override
     @Transactional
     public boolean update(GiftCertificateDTO giftCertificateDTO) {
         boolean result;
-        GiftCertificate giftCertificate = giftCertificateRepository.findById(giftCertificateDTO.getId())
-                .orElseThrow(() -> new EntityNotFoundException("Certificate not found with id " + giftCertificateDTO.getId()));
 
-        Optional<GiftCertificate> giftCertificateByName = giftCertificateRepository.findByName(giftCertificateDTO.getName());
-        if (giftCertificateByName.isPresent() && giftCertificateByName.get().getId() != giftCertificateDTO.getId()) {
-            throw new EntityAlreadyExistException("Certificate found with name " + giftCertificateDTO.getName());
-        }
-        GiftCertificate updateGiftCertificate = new GiftCertificate();
-        updateGiftCertificate.setId(giftCertificate.getId());
-        updateGiftCertificate.setName(giftCertificateDTO.getName());
-        updateGiftCertificate.setDescription(giftCertificateDTO.getDescription());
-        updateGiftCertificate.setPrice(giftCertificateDTO.getPrice());
-        updateGiftCertificate.setDuration(giftCertificateDTO.getDuration());
+        GiftCertificate updateGiftCertificate = giftCertificateConverter.toEntity(giftCertificateDTO);
         updateGiftCertificate.setLastUpdateDate(LocalDateTime.now());
-        updateGiftCertificate.setCreationDate(giftCertificate.getCreationDate());
         result = giftCertificateRepository.update(updateGiftCertificate);
 
         List<TagDTO> tagDTOList = giftCertificateDTO.getTags();
-        List<Tag> tagListOld = tagRepository.findListTagsByCertificateId(giftCertificate.getId());
-        if ((tagDTOList.size() != 0)
-                || (tagDTOList.size() == 0 && tagListOld.size() != 0)) {
-            updateTagListForGiftCertificate(tagDTOList, giftCertificate);
-        }
+        List<Tag> tagListOld = tagRepository.findListTagsByCertificateId(giftCertificateDTO.getId());
+        updateTagListForGiftCertificate(tagDTOList, tagListOld, updateGiftCertificate);
         return result;
     }
 
@@ -143,9 +106,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Transactional
     public boolean delete(Long id) {
         boolean result;
-        GiftCertificate giftCertificate = giftCertificateRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Certificate not found with id " + id));
-        List<Tag> tagList = tagRepository.findListTagsByCertificateId(giftCertificate.getId());
+        List<Tag> tagList = tagRepository.findListTagsByCertificateId(id);
         tagList.forEach(tag -> tagRepository.deleteConnectionBetweenTagAndGiftCertificate(tag.getId(), id));
         result = giftCertificateRepository.delete(id);
         return result;
@@ -154,37 +115,14 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     public boolean updatePart(GiftCertificateDTO giftCertificateDTO) {
         boolean result;
-        GiftCertificate giftCertificate = giftCertificateRepository.findById(giftCertificateDTO.getId())
-                .orElseThrow(() -> new EntityNotFoundException("Certificate not found with id " + giftCertificateDTO.getId()));
-
-        Optional<GiftCertificate> giftCertificateByName = giftCertificateRepository.findByName(giftCertificateDTO.getName());
-        if (giftCertificateByName.isPresent() && giftCertificateByName.get().getId() != giftCertificateDTO.getId()) {
-            throw new EntityAlreadyExistException("Certificate found with name " + giftCertificateDTO.getName());
-        }
-        GiftCertificate updateGiftCertificate = new GiftCertificate();
-        updateGiftCertificate.setId(giftCertificate.getId());
-        if (giftCertificateDTO.getName() != null) {
-            updateGiftCertificate.setName(giftCertificateDTO.getName());
-        }
-        if (giftCertificateDTO.getDescription() != null) {
-            updateGiftCertificate.setDescription(giftCertificateDTO.getDescription());
-        }
-        if (giftCertificateDTO.getPrice() != null) {
-            updateGiftCertificate.setPrice(giftCertificateDTO.getPrice());
-        }
-        if (giftCertificateDTO.getDuration() != null) {
-            updateGiftCertificate.setDuration(giftCertificateDTO.getDuration());
-        }
+        GiftCertificate updateGiftCertificate = giftCertificateConverter.toEntity(giftCertificateDTO);
         updateGiftCertificate.setLastUpdateDate(LocalDateTime.now());
         result = giftCertificateRepository.updatePart(updateGiftCertificate);
 
         List<TagDTO> tagDTOList = giftCertificateDTO.getTags();
-        List<Tag> tagListOld = tagRepository.findListTagsByCertificateId(giftCertificate.getId());
+        List<Tag> tagListOld = tagRepository.findListTagsByCertificateId(updateGiftCertificate.getId());
 
-        if ((tagDTOList != null && tagDTOList.size() != 0)
-                || ((tagDTOList != null && tagDTOList.size() == 0 && tagListOld.size() != 0))) {
-            updateTagListForGiftCertificate(tagDTOList, giftCertificate);
-        }
+        updateTagListForGiftCertificate(tagDTOList, tagListOld, updateGiftCertificate);
         return result;
     }
 
@@ -201,9 +139,8 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         return giftCertificateDTOS;
     }
 
-    private void updateTagListForGiftCertificate(List<TagDTO> tagDTOList, GiftCertificate giftCertificate) {
+    private void updateTagListForGiftCertificate(List<TagDTO> tagDTOList, List<Tag> oldTagList, GiftCertificate giftCertificate) {
 
-        List<Tag> oldTagList = tagRepository.findListTagsByCertificateId(giftCertificate.getId());
         List<TagDTO> updateTagDTOList = tagDTOList.stream().filter(task -> task.getId() != null).collect(Collectors.toList());
         List<TagDTO> createTagList = tagDTOList.stream().filter(task -> task.getId() == null).collect(Collectors.toList());
 

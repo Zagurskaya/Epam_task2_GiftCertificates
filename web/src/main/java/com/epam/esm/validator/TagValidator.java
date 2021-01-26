@@ -1,5 +1,6 @@
 package com.epam.esm.validator;
 
+import com.epam.esm.exception.ValidationException;
 import com.epam.esm.model.TagDTO;
 import org.springframework.stereotype.Component;
 
@@ -10,7 +11,7 @@ public class TagValidator extends DateValidator {
 
     public void createValidate(TagDTO tagDTO) {
         if (tagDTO.getName() == null) {
-            throw new IllegalArgumentException("the field cannot be null : name");
+            throw new ValidationException("the field cannot be null : name");
         } else {
             fieldValidate(tagDTO.getName(), "name", ALPHABET_NUMBER_UNDERSCORE_MINUS_BLANK_VALIDATE_PATTERN);
         }

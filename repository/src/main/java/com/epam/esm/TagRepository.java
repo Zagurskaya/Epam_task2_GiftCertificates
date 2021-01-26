@@ -19,7 +19,7 @@ public interface TagRepository {
      * @param id - ID
      * @return object
      */
-    Optional<Tag> findById(Long id);
+    Tag findById(Long id);
 
     /**
      * Create Tag

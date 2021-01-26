@@ -2,6 +2,7 @@ package com.epam.esm.controller;
 
 import com.epam.esm.TagService;
 import com.epam.esm.model.TagDTO;
+import com.epam.esm.response.IdForm;
 import com.epam.esm.validator.TagValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,19 +35,16 @@ public class TagController {
     }
 
     @PostMapping(value = "/tags")
-    public ResponseEntity<String> createTag(@RequestBody TagDTO tag) {
+    public ResponseEntity<IdForm> createTag(@RequestBody TagDTO tag) {
         tagValidator.createValidate(tag);
         Long id = tagService.create(tag);
-        return new ResponseEntity<>("id = " + id, HttpStatus.OK);
+        IdForm idForm = new IdForm(id);
+        return new ResponseEntity<>(idForm, HttpStatus.CREATED);
     }
 
     @DeleteMapping(value = "/tags/{id}")
     public ResponseEntity deleteTag(@PathVariable("id") long id) {
-        TagDTO tag = tagService.findById(id);
-        if (tag == null) {
-            return new ResponseEntity(HttpStatus.BAD_REQUEST);
-        }
         tagService.delete(id);
-        return new ResponseEntity(HttpStatus.OK);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 }

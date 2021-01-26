@@ -45,7 +45,7 @@ class TagRepositoryImplTest {
     @Test
     @Order(3)
     void findByIdTest() {
-        Tag tag = tagRepository.findById(createId).get();
+        Tag tag = tagRepository.findById(createId);
         assertNotNull(tag);
     }
 

@@ -46,14 +46,6 @@ public interface GiftCertificateService {
     List<GiftCertificateDTO> findAll();
 
     /**
-     * Search GiftCertificateDTO by name
-     *
-     * @param name - GiftCertificate name
-     * @return GiftCertificateDTO
-     */
-    GiftCertificateDTO findByName(String name);
-
-    /**
      * Update part GiftCertificateDTO
      *
      * @param giftCertificateDTO - GiftCertificateDTO

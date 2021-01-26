@@ -1,8 +1,11 @@
 package com.epam.esm.impl;
 
 import com.epam.esm.TagRepository;
+import com.epam.esm.exception.EntityAlreadyExistException;
+import com.epam.esm.exception.EntityNotFoundException;
 import com.epam.esm.model.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -47,27 +50,30 @@ public class TagRepositoryImpl implements TagRepository {
     }
 
     @Override
-    public Optional<Tag> findById(Long id) {
+    public Tag findById(Long id) {
         try {
             Tag tag = jdbcTemplate.queryForObject(SQL_SELECT_TAG_BY_ID, new Object[]{id}, new TagRowMapper());
-            return Optional.of(tag);
-        } catch (
-                EmptyResultDataAccessException exception) {
-            return Optional.empty();
+            return tag;
+        } catch (EmptyResultDataAccessException exception) {
+            throw new EntityNotFoundException("Tag not found with id " + id);
         }
     }
 
     @Override
     public Long create(Tag tag) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(
-                connection -> {
-                    PreparedStatement ps = connection.prepareStatement(SQL_INSERT_TAG, new String[]{"id"});
-                    ps.setString(1, tag.getName());
-                    return ps;
-                },
-                keyHolder);
-        return keyHolder.getKey().longValue();
+        try {
+            jdbcTemplate.update(
+                    connection -> {
+                        PreparedStatement ps = connection.prepareStatement(SQL_INSERT_TAG, new String[]{"id"});
+                        ps.setString(1, tag.getName());
+                        return ps;
+                    },
+                    keyHolder);
+            return keyHolder.getKey().longValue();
+        } catch (DuplicateKeyException exception) {
+            throw new EntityAlreadyExistException("Tag found with name " + tag.getName());
+        }
     }
 
     @Override

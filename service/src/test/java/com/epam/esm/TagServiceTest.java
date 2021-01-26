@@ -2,8 +2,7 @@ package com.epam.esm;
 
 
 import com.epam.esm.converter.TagConverter;
-import com.epam.esm.exception.DaoException;
-import com.epam.esm.exception.ServiceException;
+import com.epam.esm.exception.EntityNotFoundException;
 import com.epam.esm.impl.TagServiceImpl;
 import com.epam.esm.model.Tag;
 import com.epam.esm.model.TagDTO;
@@ -74,44 +73,44 @@ public class TagServiceTest {
 
     @Test
     public void shouldGetTagDTOForFindByIdMethodCall() {
-        Optional<Tag> tag = Optional.of(new Tag());
-        tag.get().setId(1L);
-        tag.get().setName("Tag1");
+        Tag tag = new Tag();
+        tag.setId(1L);
+        tag.setName("Tag1");
 
         TagDTO tagDTO = new TagDTO();
         tagDTO.setId(1L);
         tagDTO.setName("Tag1");
 
-        when(tagRepository.findById(tag.get().getId())).thenReturn(tag);
-        when(tagConverter.toDTO(tag.get())).thenReturn(tagDTO);
+        when(tagRepository.findById(tag.getId())).thenReturn(tag);
+        when(tagConverter.toDTO(tag)).thenReturn(tagDTO);
         TagDTO tagById = tagService.findById(tagDTO.getId());
         assertEquals(tagDTO, tagById);
     }
 
-    @Test(expected = DaoException.class)
+    @Test(expected = EntityNotFoundException.class)
     public void shouldThrowDaoExceptionWhenCatchingExceptionFromRepositoryForFindByIdMethodCall() {
         Long id = 1L;
-        when(tagRepository.findById(id)).thenThrow(new DaoException("Tag not found with id"));
+        when(tagRepository.findById(id)).thenThrow(new EntityNotFoundException("Tag not found with id"));
         tagService.findById(id);
     }
 
-    @Test(expected = ServiceException.class)
+    @Test(expected = EntityNotFoundException.class)
     public void shouldThrowServiceExceptionForDeleteMethodCall() {
         Long id = 1L;
         Optional<Tag> tag = Optional.of(new Tag());
         tag.get().setId(id);
         tag.get().setName("Tag1");
-        when(tagRepository.findById(id)).thenThrow(new ServiceException("Tag not found with id " + id));
+        when(tagRepository.findById(id)).thenThrow(new EntityNotFoundException("Tag not found with id " + id));
         tagService.delete(id);
     }
 
     @Test
     public void shouldTrueForDeleteMethodCall() {
-        Optional<Tag> tag = Optional.of(new Tag());
-        tag.get().setId(1L);
-        tag.get().setName("Tag1");
-        when(tagRepository.findById(tag.get().getId())).thenReturn(tag);
-        when(tagRepository.delete(tag.get().getId())).thenReturn(true);
-        assertEquals(true, tagService.delete(tag.get().getId()));
+        Tag tag =new Tag();
+        tag.setId(1L);
+        tag.setName("Tag1");
+        when(tagRepository.findById(tag.getId())).thenReturn(tag);
+        when(tagRepository.delete(tag.getId())).thenReturn(true);
+        assertEquals(true, tagService.delete(tag.getId()));
     }
 }

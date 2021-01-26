@@ -1,7 +1,7 @@
 package com.epam.esm.validator;
 
+import com.epam.esm.exception.ValidationException;
 import com.epam.esm.model.GiftCertificateDTO;
-import com.epam.esm.model.TagDTO;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -13,25 +13,25 @@ public class GiftCertificateValidator extends DateValidator {
 
     public void createValidate(GiftCertificateDTO giftCertificateDTO) {
         if (giftCertificateDTO.getName() == null) {
-            throw new IllegalArgumentException("the field cannot be null : name");
+            throw new ValidationException("the field cannot be null : name");
         } else {
             fieldValidate(giftCertificateDTO.getName(), "name", ALPHABET_NUMBER_UNDERSCORE_MINUS_BLANK_VALIDATE_PATTERN);
         }
 
         if (giftCertificateDTO.getDescription() == null) {
-            throw new IllegalArgumentException("the field cannot be null : description");
+            throw new ValidationException("the field cannot be null : description");
         } else {
             fieldValidate(giftCertificateDTO.getDescription(), "description", ALPHABET_NUMBER_UNDERSCORE_MINUS_BLANK_VALIDATE_PATTERN);
         }
 
         if (giftCertificateDTO.getPrice() == null) {
-            throw new IllegalArgumentException("the field cannot be null : price");
+            throw new ValidationException("the field cannot be null : price");
         } else {
             fieldValidate(giftCertificateDTO.getPrice().toString(), "price", MARK_VALIDATION_REGEX);
         }
 
         if (giftCertificateDTO.getDuration() == null) {
-            throw new IllegalArgumentException("the field cannot be null : duration");
+            throw new ValidationException("the field cannot be null : duration");
         } else {
             fieldValidate(giftCertificateDTO.getDuration().toString(), "duration", MARK_VALIDATION_REGEX);
         }
@@ -40,7 +40,7 @@ public class GiftCertificateValidator extends DateValidator {
     public void updateValidate(GiftCertificateDTO giftCertificateDTO) {
         createValidate(giftCertificateDTO);
         if (giftCertificateDTO.getCreationDate() == null) {
-            throw new IllegalArgumentException("the field cannot be null : creationDate");
+            throw new ValidationException("the field cannot be null : creationDate");
         } else {
             fieldValidate(giftCertificateDTO.getCreationDate().toString(), "creation date", DATE_VALIDATION_REGEX);
         }

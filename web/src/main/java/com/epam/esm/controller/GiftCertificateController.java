@@ -3,6 +3,7 @@ package com.epam.esm.controller;
 import com.epam.esm.GiftCertificateService;
 import com.epam.esm.request.FilterForm;
 import com.epam.esm.model.GiftCertificateDTO;
+import com.epam.esm.response.IdForm;
 import com.epam.esm.validator.GiftCertificateValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -49,10 +50,11 @@ public class GiftCertificateController {
     }
 
     @PostMapping(value = "/certificates")
-    public ResponseEntity<String> createGiftCertificate(@RequestBody GiftCertificateDTO giftCertificate) {
+    public ResponseEntity<IdForm> createGiftCertificate(@RequestBody GiftCertificateDTO giftCertificate) {
         giftCertificateValidator.createValidate(giftCertificate);
         Long id = giftCertificateService.create(giftCertificate);
-        return new ResponseEntity<>("id=" + id, HttpStatus.OK);
+        IdForm idForm = new IdForm(id);
+        return new ResponseEntity<>(idForm, HttpStatus.CREATED);
     }
 
     @PutMapping(value = "/certificates/{id}")
@@ -60,22 +62,21 @@ public class GiftCertificateController {
 
         giftCertificateValidator.updateValidate(updateGiftCertificate);
         updateGiftCertificate.setId(id);
-        return giftCertificateService.update(updateGiftCertificate) ? new ResponseEntity(HttpStatus.OK) : new ResponseEntity(HttpStatus.BAD_REQUEST);
+        giftCertificateService.update(updateGiftCertificate);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
     @PatchMapping(value = "/certificates/{id}")
     public ResponseEntity updatePartGiftCertificate(@PathVariable("id") long id, @RequestBody GiftCertificateDTO updateGiftCertificate) {
         giftCertificateValidator.updatePartValidate(updateGiftCertificate);
         updateGiftCertificate.setId(id);
-        return giftCertificateService.updatePart(updateGiftCertificate) ? new ResponseEntity(HttpStatus.OK) : new ResponseEntity(HttpStatus.BAD_REQUEST);
+        giftCertificateService.updatePart(updateGiftCertificate);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
     @DeleteMapping(value = "/certificates/{id}")
     public ResponseEntity deleteGiftCertificate(@PathVariable("id") long id) {
-        GiftCertificateDTO giftCertificate = giftCertificateService.findById(id);
-        if (giftCertificate == null) {
-            return new ResponseEntity(HttpStatus.BAD_REQUEST);
-        }
-        return giftCertificateService.delete(id) ? new ResponseEntity(HttpStatus.OK) : new ResponseEntity(HttpStatus.BAD_REQUEST);
+        giftCertificateService.delete(id);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 }

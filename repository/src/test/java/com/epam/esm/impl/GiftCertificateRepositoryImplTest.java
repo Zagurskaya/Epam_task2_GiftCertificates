@@ -1,10 +1,8 @@
 package com.epam.esm.impl;
 
 import com.epam.esm.GiftCertificateRepository;
-import com.epam.esm.TagRepository;
 import com.epam.esm.config.RepositoryTestConfig;
 import com.epam.esm.model.GiftCertificate;
-import com.epam.esm.model.Tag;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -16,7 +14,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -55,14 +52,14 @@ class GiftCertificateRepositoryImplTest {
     @Test
     @Order(3)
     void findByIdTest() {
-        GiftCertificate giftCertificate = giftCertificateRepository.findById(createId).get();
+        GiftCertificate giftCertificate = giftCertificateRepository.findById(createId);
         assertNotNull(giftCertificate);
     }
 
     @Test
     @Order(4)
     void findByNameTest() {
-        GiftCertificate giftCertificate = giftCertificateRepository.findByName("giftCertificate1").get();
+        GiftCertificate giftCertificate = giftCertificateRepository.findByName("giftCertificate1");
         assertNotNull(giftCertificate);
     }
     @Test()

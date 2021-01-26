@@ -20,7 +20,7 @@ public interface GiftCertificateRepository {
      * @param id - ID
      * @return object
      */
-    Optional<GiftCertificate> findById(Long id);
+    GiftCertificate findById(Long id);
 
     /**
      * Create GiftCertificate
@@ -61,7 +61,7 @@ public interface GiftCertificateRepository {
      * @param name - giftCertificate name
      * @return giftCertificate
      */
-    Optional<GiftCertificate> findByName(String name);
+    GiftCertificate findByName(String name);
 
     /**
      * Get a list of GiftCertificates by filter
