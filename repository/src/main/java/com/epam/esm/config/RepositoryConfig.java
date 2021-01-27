@@ -1,5 +1,7 @@
 package com.epam.esm.config;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -23,12 +25,16 @@ public class RepositoryConfig {
 
     @Bean
     public DataSource dataSource() {
-        DriverManagerDataSource driverManagerDataSource = new DriverManagerDataSource();
-        driverManagerDataSource.setDriverClassName(env.getProperty("database.driver"));
-        driverManagerDataSource.setUrl(env.getProperty("database.url"));
-        driverManagerDataSource.setUsername(env.getProperty("database.username"));
-        driverManagerDataSource.setPassword(env.getProperty("database.password"));
-        return driverManagerDataSource;
+
+        HikariConfig hikariConfig = new HikariConfig();
+        hikariConfig.setDriverClassName(env.getProperty("database.driver"));
+        hikariConfig.setJdbcUrl(env.getProperty("database.url"));
+        hikariConfig.setUsername(env.getProperty("database.username"));
+        hikariConfig.setPassword(env.getProperty("database.password"));
+
+        hikariConfig.setMaximumPoolSize(10);
+        HikariDataSource dataSource = new HikariDataSource(hikariConfig);
+        return dataSource;
     }
 
     @Bean

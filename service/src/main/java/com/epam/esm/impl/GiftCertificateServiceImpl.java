@@ -115,13 +115,12 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     public boolean updatePart(GiftCertificateDTO giftCertificateDTO) {
         boolean result;
-        GiftCertificate updateGiftCertificate = giftCertificateConverter.toEntity(giftCertificateDTO);
+        GiftCertificate updateGiftCertificate = giftCertificateConverter.toEntityPartFields(giftCertificateDTO);
         updateGiftCertificate.setLastUpdateDate(LocalDateTime.now());
         result = giftCertificateRepository.updatePart(updateGiftCertificate);
 
         List<TagDTO> tagDTOList = giftCertificateDTO.getTags();
         List<Tag> tagListOld = tagRepository.findListTagsByCertificateId(updateGiftCertificate.getId());
-
         updateTagListForGiftCertificate(tagDTOList, tagListOld, updateGiftCertificate);
         return result;
     }
@@ -151,17 +150,15 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         addTagList.removeAll(createTagList);
         addTagList.removeAll(oldTagList.stream().map(tagConverter::toDTO).collect(Collectors.toList()));
 
-        for (TagDTO tagDTO : createTagList) {
+        createTagList.forEach(tagDTO -> {
             Optional<Tag> tag = tagRepository.findByName(tagDTO.getName());
             if (!tag.isPresent()) {
-                Tag newTag = new Tag();
-                newTag.setName(tagDTO.getName());
-                Long newTagId = tagRepository.create(newTag);
+                Long newTagId = tagRepository.create(tagConverter.toEntity(tagDTO));
                 tagRepository.createConnectionBetweenTagAndGiftCertificate(newTagId, giftCertificate.getId());
             } else {
                 tagRepository.createConnectionBetweenTagAndGiftCertificate(tag.get().getId(), giftCertificate.getId());
             }
-        }
+        });
         addTagList.forEach(tagDTO -> tagRepository.createConnectionBetweenTagAndGiftCertificate(tagDTO.getId(), giftCertificate.getId()));
 
         deleteTagList.forEach(tag -> tagRepository.deleteConnectionBetweenTagAndGiftCertificate(tag.getId(), giftCertificate.getId()));

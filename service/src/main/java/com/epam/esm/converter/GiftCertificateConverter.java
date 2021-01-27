@@ -9,4 +9,6 @@ public interface GiftCertificateConverter {
 
     GiftCertificate toEntity(GiftCertificateDTO giftCertificateDTO);
 
+    GiftCertificate toEntityPartFields(GiftCertificateDTO giftCertificateDTO);
+
 }

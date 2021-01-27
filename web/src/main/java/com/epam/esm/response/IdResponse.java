@@ -7,6 +7,6 @@ import lombok.*;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class IdForm {
+public class IdResponse {
     private Long id;
 }

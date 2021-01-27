@@ -1,16 +1,16 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.GiftCertificateService;
-import com.epam.esm.request.FilterForm;
+import com.epam.esm.mapper.FilterMapper;
+import com.epam.esm.request.FilterRequest;
 import com.epam.esm.model.GiftCertificateDTO;
-import com.epam.esm.response.IdForm;
+import com.epam.esm.response.IdResponse;
 import com.epam.esm.validator.GiftCertificateValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,14 +27,9 @@ public class GiftCertificateController {
     }
 
     @GetMapping(value = "/certificates")
-    public ResponseEntity<List<GiftCertificateDTO>> getGiftCertificates(FilterForm filterForm) {
+    public ResponseEntity<List<GiftCertificateDTO>> getGiftCertificates(FilterRequest filterRequest) {
         List<GiftCertificateDTO> certificateDTOS = null;
-        Map<String, String> filterMap = new HashMap<>();
-        if (filterForm.getTagName() != null) filterMap.put("tagName", filterForm.getTagName());
-        if (filterForm.getPartName() != null) filterMap.put("partName", filterForm.getPartName());
-        if (filterForm.getPartDescription() != null) filterMap.put("partDescription", filterForm.getPartDescription());
-        if (filterForm.getOrderBy() != null) filterMap.put("orderBy", filterForm.getOrderBy());
-        if (filterForm.getOrderValue() != null) filterMap.put("orderValue", filterForm.getOrderValue());
+        Map<String, String> filterMap = FilterMapper.toMap(filterRequest);
         if (filterMap.isEmpty()) {
             certificateDTOS = giftCertificateService.findAll();
         } else {
@@ -50,26 +45,24 @@ public class GiftCertificateController {
     }
 
     @PostMapping(value = "/certificates")
-    public ResponseEntity<IdForm> createGiftCertificate(@RequestBody GiftCertificateDTO giftCertificate) {
-        giftCertificateValidator.createValidate(giftCertificate);
+    public ResponseEntity<IdResponse> createGiftCertificate(@RequestBody GiftCertificateDTO giftCertificate) {
+        giftCertificateValidator.validateFieldsCreateOperation(giftCertificate);
         Long id = giftCertificateService.create(giftCertificate);
-        IdForm idForm = new IdForm(id);
-        return new ResponseEntity<>(idForm, HttpStatus.CREATED);
+        IdResponse idResponse = new IdResponse(id);
+        return new ResponseEntity<>(idResponse, HttpStatus.CREATED);
     }
 
-    @PutMapping(value = "/certificates/{id}")
-    public ResponseEntity updateGiftCertificate(@PathVariable("id") long id, @RequestBody GiftCertificateDTO updateGiftCertificate) {
+    @PutMapping(value = "/certificates")
+    public ResponseEntity updateGiftCertificate(@RequestBody GiftCertificateDTO updateGiftCertificate) {
 
-        giftCertificateValidator.updateValidate(updateGiftCertificate);
-        updateGiftCertificate.setId(id);
+        giftCertificateValidator.validateFieldsUpdateOperation(updateGiftCertificate);
         giftCertificateService.update(updateGiftCertificate);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
-    @PatchMapping(value = "/certificates/{id}")
-    public ResponseEntity updatePartGiftCertificate(@PathVariable("id") long id, @RequestBody GiftCertificateDTO updateGiftCertificate) {
-        giftCertificateValidator.updatePartValidate(updateGiftCertificate);
-        updateGiftCertificate.setId(id);
+    @PatchMapping(value = "/certificates")
+    public ResponseEntity updatePartGiftCertificate(@RequestBody GiftCertificateDTO updateGiftCertificate) {
+        giftCertificateValidator.validateFieldsUpdatePartOperation(updateGiftCertificate);
         giftCertificateService.updatePart(updateGiftCertificate);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }

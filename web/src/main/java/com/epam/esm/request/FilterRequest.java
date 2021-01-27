@@ -7,7 +7,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class FilterForm {
+public class FilterRequest {
     private String tagName;
     private String partName;
     private String partDescription;

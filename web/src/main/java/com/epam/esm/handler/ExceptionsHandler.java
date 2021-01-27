@@ -1,9 +1,6 @@
 package com.epam.esm.handler;
 
-import com.epam.esm.exception.EntityAlreadyExistException;
-import com.epam.esm.exception.EntityNotFoundException;
-import com.epam.esm.exception.StatusCode;
-import com.epam.esm.exception.ValidationException;
+import com.epam.esm.exception.*;
 import com.epam.esm.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +18,12 @@ public class ExceptionsHandler {
 
     @ExceptionHandler()
     public ResponseEntity<ErrorResponse> alreadyExistError(EntityAlreadyExistException exc) {
+        ErrorResponse error = new ErrorResponse(StatusCode.CONFLICT.getLabel(), exc.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler()
+    public ResponseEntity<ErrorResponse> alreadyExistError(EmptyFieldException exc) {
         ErrorResponse error = new ErrorResponse(StatusCode.CONFLICT.getLabel(), exc.getMessage());
         return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }

@@ -1,11 +1,13 @@
 package com.epam.esm.impl;
 
 import com.epam.esm.GiftCertificateRepository;
+import com.epam.esm.exception.EmptyFieldException;
 import com.epam.esm.exception.EntityAlreadyExistException;
 import com.epam.esm.exception.EntityNotFoundException;
 import com.epam.esm.model.GiftCertificate;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -82,6 +84,8 @@ class GiftCertificateRepositoryImpl implements GiftCertificateRepository {
             return keyHolder.getKey().longValue();
         } catch (DuplicateKeyException exception) {
             throw new EntityAlreadyExistException("Certificate found with name " + giftCertificate.getName());
+        } catch (DataIntegrityViolationException exception) {
+            throw new EmptyFieldException("Certificate has empty field ");
         }
     }
 
@@ -142,6 +146,8 @@ class GiftCertificateRepositoryImpl implements GiftCertificateRepository {
             return 1 == result;
         } catch (DuplicateKeyException exception) {
             throw new EntityAlreadyExistException("Certificate found with name " + giftCertificate.getName());
+        } catch (DataIntegrityViolationException exception) {
+            throw new EmptyFieldException("Certificate has empty field ");
         }
     }
 
@@ -153,6 +159,8 @@ class GiftCertificateRepositoryImpl implements GiftCertificateRepository {
                     giftCertificate.getCreationDate().toString(), giftCertificate.getLastUpdateDate().toString(), giftCertificate.getId()) > 0;
         } catch (DuplicateKeyException exception) {
             throw new EntityAlreadyExistException("Certificate found with name " + giftCertificate.getName());
+        } catch (DataIntegrityViolationException exception) {
+            throw new EmptyFieldException("Certificate has empty field ");
         }
     }
 
