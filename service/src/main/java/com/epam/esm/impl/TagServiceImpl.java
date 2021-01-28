@@ -1,5 +1,6 @@
 package com.epam.esm.impl;
 
+import com.epam.esm.RelationRepository;
 import com.epam.esm.TagRepository;
 import com.epam.esm.TagService;
 import com.epam.esm.converter.TagConverter;
@@ -7,6 +8,7 @@ import com.epam.esm.model.Tag;
 import com.epam.esm.model.TagDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,14 +18,17 @@ public class TagServiceImpl implements TagService {
 
     private final TagRepository tagRepository;
     private final TagConverter tagConverter;
+    private final RelationRepository relationRepository;
+
 
     @Autowired
     public TagServiceImpl(
             TagRepository tagRepository,
-            TagConverter tagConverter
-    ) {
+            TagConverter tagConverter,
+            RelationRepository relationRepository) {
         this.tagRepository = tagRepository;
         this.tagConverter = tagConverter;
+        this.relationRepository = relationRepository;
     }
 
     @Override
@@ -45,11 +50,12 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
+    @Transactional
     public boolean delete(Long id) {
-        Tag tag = tagRepository.findById(id);
-        if (tag == null) {
-            return false;
-        }
-        return tagRepository.delete(id);
+        boolean result;
+        List<Long> certificateIdList = relationRepository.findListCertificateIdByTagId(id);
+        certificateIdList.forEach(certificateId -> relationRepository.deleteRelationBetweenTagAndGiftCertificate(id, certificateId));
+        result = tagRepository.delete(id);
+        return result;
     }
 }

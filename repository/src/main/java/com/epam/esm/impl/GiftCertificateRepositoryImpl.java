@@ -27,8 +27,6 @@ import java.util.Map;
 @Repository
 class GiftCertificateRepositoryImpl implements GiftCertificateRepository {
 
-    JdbcTemplate jdbcTemplate;
-
     private static final String SQL_SELECT_ALL_GIFT_CERTIFICATES = "SELECT id, name, description, price, duration, creationDate, lastUpdateDate FROM giftCertificate ";
     private static final String SQL_SELECT_ALL_GIFT_CERTIFICATES_BY_FILTER = "SELECT giftcertificate.id, giftcertificate.name, giftcertificate.description,giftcertificate.price, giftcertificate.duration, giftcertificate.creationDate, giftcertificate.lastUpdateDate \n" +
             "FROM giftcertificate\n" +
@@ -42,6 +40,8 @@ class GiftCertificateRepositoryImpl implements GiftCertificateRepository {
     private static final String SQL_INSERT_GIFT_CERTIFICATE = "INSERT INTO giftCertificate(name, description, price, duration, creationDate, lastUpdateDate) VALUES (?, ?, ?, ?, ?, ?)";
     private static final String SQL_DELETE_GIFT_CERTIFICATE = "DELETE FROM giftCertificate WHERE id=?";
     private static final String SQL_UPDATE_GIFT_CERTIFICATE = "UPDATE giftCertificate SET name=?, description=?, price=?, duration=?, creationDate=?, lastUpdateDate=? WHERE id= ?";
+
+    private JdbcTemplate jdbcTemplate;
 
     @Autowired
     public GiftCertificateRepositoryImpl(DataSource dataSource) {
@@ -75,7 +75,7 @@ class GiftCertificateRepositoryImpl implements GiftCertificateRepository {
                         ps.setString(1, giftCertificate.getName());
                         ps.setString(2, giftCertificate.getDescription());
                         ps.setBigDecimal(3, giftCertificate.getPrice());
-                        ps.setInt(4, giftCertificate.getDuration());
+                        ps.setLong(4, giftCertificate.getDuration());
                         ps.setString(5, giftCertificate.getCreationDate().toString());
                         ps.setString(6, giftCertificate.getLastUpdateDate().toString());
                         return ps;
@@ -132,7 +132,7 @@ class GiftCertificateRepositoryImpl implements GiftCertificateRepository {
                             i++;
                         }
                         if (giftCertificate.getDuration() != null) {
-                            ps.setInt(i, giftCertificate.getDuration());
+                            ps.setLong(i, giftCertificate.getDuration());
                             i++;
                         }
                         if (giftCertificate.getCreationDate() != null) {
@@ -248,7 +248,7 @@ class GiftCertificateRepositoryImpl implements GiftCertificateRepository {
                     rs.getString(ColumnName.GIFT_CERTIFICATE_NAME),
                     rs.getString(ColumnName.GIFT_CERTIFICATE_DESCRIPTION),
                     rs.getBigDecimal(ColumnName.GIFT_CERTIFICATE_PRICE),
-                    rs.getInt(ColumnName.GIFT_CERTIFICATE_DURATION),
+                    rs.getLong(ColumnName.GIFT_CERTIFICATE_DURATION),
                     rs.getObject(ColumnName.GIFT_CERTIFICATE_CREATION_DATE, LocalDateTime.class),
                     rs.getObject(ColumnName.GIFT_CERTIFICATE_LAST_UPDATE_DATE, LocalDateTime.class)
             );

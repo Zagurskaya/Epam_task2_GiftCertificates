@@ -33,7 +33,7 @@ public class GiftCertificate {
     /**
      * Duration
      */
-    private Integer duration;
+    private Long duration;
     /**
      * Creation date
      */

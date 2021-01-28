@@ -25,8 +25,6 @@ import java.util.Optional;
 @Repository
 public class TagRepositoryImpl implements TagRepository {
 
-    JdbcTemplate jdbcTemplate;
-
     private static final String SQL_SELECT_ALL_TAGS = "SELECT id, name FROM tag ";
     private static final String SQL_SELECT_TAG_BY_ID = "SELECT id, name FROM tag WHERE id= ? ";
     private static final String SQL_SELECT_TAG_BY_GIFT_CERTIFICATE_ID =
@@ -36,9 +34,9 @@ public class TagRepositoryImpl implements TagRepository {
                     "WHERE certificate_tag.certificateId = ? ";
     private static final String SQL_SELECT_TAG_BY_NAME = "SELECT id, name FROM tag WHERE name = ? ";
     private static final String SQL_INSERT_TAG = "INSERT INTO tag(name) VALUES (?)";
-    private static final String SQL_INSERT_CONNECTION_CERTIFICATE_TAG = "INSERT INTO certificate_tag(certificateId, tagId) VALUES (?, ?)";
-    private static final String SQL_DELETE_CONNECTION_CERTIFICATE_TAG = "DELETE FROM certificate_tag WHERE certificateId = ? AND tagId = ?";
     private static final String SQL_DELETE_TAG = "DELETE FROM tag WHERE id=?";
+
+    private JdbcTemplate jdbcTemplate;
 
     @Autowired
     public TagRepositoryImpl(DataSource dataSource) {
@@ -98,31 +96,6 @@ public class TagRepositoryImpl implements TagRepository {
         } catch (EmptyResultDataAccessException exception) {
             return Optional.empty();
         }
-    }
-
-    @Override
-    public Long createConnectionBetweenTagAndGiftCertificate(Long tagId, Long CertificateId) {
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(
-                connection -> {
-                    PreparedStatement ps = connection.prepareStatement(SQL_INSERT_CONNECTION_CERTIFICATE_TAG, new String[]{"id"});
-                    ps.setLong(1, CertificateId);
-                    ps.setLong(2, tagId);
-                    return ps;
-                },
-                keyHolder);
-        return keyHolder.getKey().longValue();
-    }
-
-    @Override
-    public boolean deleteConnectionBetweenTagAndGiftCertificate(Long tagId, Long CertificateId) {
-        return 1 == jdbcTemplate.update(
-                connection -> {
-                    PreparedStatement ps = connection.prepareStatement(SQL_DELETE_CONNECTION_CERTIFICATE_TAG);
-                    ps.setLong(1, CertificateId);
-                    ps.setLong(2, tagId);
-                    return ps;
-                });
     }
 
     class TagRowMapper implements RowMapper<Tag> {

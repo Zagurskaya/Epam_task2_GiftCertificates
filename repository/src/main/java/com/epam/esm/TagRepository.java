@@ -53,21 +53,4 @@ public interface TagRepository {
      * @return tag
      */
     Optional<Tag> findByName(String name);
-
-    /**
-     * Create Tag and connection with GiftCertificate
-     *
-     * @param tagId         - Tag id
-     * @param CertificateId - GiftCertificate Id
-     */
-    Long createConnectionBetweenTagAndGiftCertificate(Long tagId, Long CertificateId);
-
-    /**
-     * Delete Tag connection with GiftCertificate
-     *
-     * @param tagId         - Tag id
-     * @param CertificateId - GiftCertificate Id
-     * @return true on successful creation
-     */
-    boolean deleteConnectionBetweenTagAndGiftCertificate(Long tagId, Long CertificateId);
 }

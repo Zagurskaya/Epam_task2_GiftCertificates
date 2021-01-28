@@ -4,7 +4,6 @@ import com.epam.esm.model.GiftCertificate;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 public interface GiftCertificateRepository {
     /**
