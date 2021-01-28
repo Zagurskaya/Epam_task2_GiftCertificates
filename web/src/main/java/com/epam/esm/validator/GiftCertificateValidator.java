@@ -1,5 +1,6 @@
 package com.epam.esm.validator;
 
+import com.epam.esm.exception.ValidationException;
 import com.epam.esm.model.GiftCertificateDTO;
 import org.springframework.stereotype.Component;
 
@@ -7,7 +8,20 @@ import org.springframework.stereotype.Component;
 public class GiftCertificateValidator extends FieldValidator {
 
     public void validate(GiftCertificateDTO giftCertificateDTO) {
-        validatePrice(giftCertificateDTO.getPrice());
-        validateDuration(giftCertificateDTO.getDuration());
+        if (giftCertificateDTO.getPrice() != null && giftCertificateDTO.getDuration() != null) {
+            validatePrice(giftCertificateDTO.getPrice());
+            validateDuration(giftCertificateDTO.getDuration());
+        } else {
+            throw new ValidationException("incorrect value");
+        }
+    }
+
+    public void validateUpdatePath(GiftCertificateDTO giftCertificateDTO) {
+        if (giftCertificateDTO.getPrice() != null) {
+            validatePrice(giftCertificateDTO.getPrice());
+        }
+        if (giftCertificateDTO.getDuration() != null) {
+            validateDuration(giftCertificateDTO.getDuration());
+        }
     }
 }
