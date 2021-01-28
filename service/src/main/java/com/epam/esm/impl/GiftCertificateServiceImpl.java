@@ -2,7 +2,7 @@ package com.epam.esm.impl;
 
 import com.epam.esm.GiftCertificateRepository;
 import com.epam.esm.GiftCertificateService;
-import com.epam.esm.RelationRepository;
+import com.epam.esm.GiftCertificateTagRelationRepository;
 import com.epam.esm.TagRepository;
 import com.epam.esm.converter.GiftCertificateConverter;
 import com.epam.esm.converter.TagConverter;
@@ -28,7 +28,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     private final GiftCertificateConverter giftCertificateConverter;
     private final TagRepository tagRepository;
     private final TagConverter tagConverter;
-    private final RelationRepository relationRepository;
+    private final GiftCertificateTagRelationRepository giftCertificateTagRelationRepository;
 
     @Autowired
     public GiftCertificateServiceImpl(
@@ -36,12 +36,12 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
             GiftCertificateConverter giftCertificateConverter,
             TagRepository tagRepository,
             TagConverter tagConverter,
-            RelationRepository relationRepository) {
+            GiftCertificateTagRelationRepository giftCertificateTagRelationRepository) {
         this.giftCertificateRepository = giftCertificateRepository;
         this.giftCertificateConverter = giftCertificateConverter;
         this.tagRepository = tagRepository;
         this.tagConverter = tagConverter;
-        this.relationRepository = relationRepository;
+        this.giftCertificateTagRelationRepository = giftCertificateTagRelationRepository;
     }
 
     @Override
@@ -101,12 +101,13 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     public boolean delete(Long id) {
         boolean result;
         List<Tag> tagList = tagRepository.findListTagsByCertificateId(id);
-        tagList.forEach(tag -> relationRepository.deleteRelationBetweenTagAndGiftCertificate(tag.getId(), id));
+        tagList.forEach(tag -> giftCertificateTagRelationRepository.deleteRelationBetweenTagAndGiftCertificate(tag.getId(), id));
         result = giftCertificateRepository.delete(id);
         return result;
     }
 
     @Override
+    @Transactional
     public boolean updatePart(GiftCertificateDTO giftCertificateDTO) {
         boolean result;
         GiftCertificate updateGiftCertificate = giftCertificateConverter.toEntityPartFields(giftCertificateDTO);
@@ -145,17 +146,17 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         addTagList.removeAll(oldTagList.stream().map(tagConverter::toDTO).collect(Collectors.toList()));
 
         createTagList.forEach(tagDTO -> createTagAndRelation(tagDTO, giftCertificate.getId()));
-        addTagList.forEach(tagDTO -> relationRepository.createRelationBetweenTagAndGiftCertificate(tagDTO.getId(), giftCertificate.getId()));
-        deleteTagList.forEach(tag -> relationRepository.deleteRelationBetweenTagAndGiftCertificate(tag.getId(), giftCertificate.getId()));
+        addTagList.forEach(tagDTO -> giftCertificateTagRelationRepository.createRelationBetweenTagAndGiftCertificate(tagDTO.getId(), giftCertificate.getId()));
+        deleteTagList.forEach(tag -> giftCertificateTagRelationRepository.deleteRelationBetweenTagAndGiftCertificate(tag.getId(), giftCertificate.getId()));
     }
 
     private void createTagAndRelation(TagDTO tagDTO, Long certificateId) {
         Optional<Tag> tag = tagRepository.findByName(tagDTO.getName());
         if (!tag.isPresent()) {
             Long newTagId = tagRepository.create(tagConverter.toEntity(tagDTO));
-            relationRepository.createRelationBetweenTagAndGiftCertificate(newTagId, certificateId);
+            giftCertificateTagRelationRepository.createRelationBetweenTagAndGiftCertificate(newTagId, certificateId);
         } else {
-            relationRepository.createRelationBetweenTagAndGiftCertificate(tag.get().getId(), certificateId);
+            giftCertificateTagRelationRepository.createRelationBetweenTagAndGiftCertificate(tag.get().getId(), certificateId);
         }
     }
 }

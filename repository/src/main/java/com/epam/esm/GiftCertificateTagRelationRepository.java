@@ -2,7 +2,7 @@ package com.epam.esm;
 
 import java.util.List;
 
-public interface RelationRepository {
+public interface GiftCertificateTagRelationRepository {
 
     /**
      * Create Tag and connection with GiftCertificate

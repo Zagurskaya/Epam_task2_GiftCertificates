@@ -26,7 +26,7 @@ class TagRepositoryImplTest {
 
     private static Long createId;
 
-    @Test()
+    @Test
     @Order(1)
     void createTest() {
         Tag tag = new Tag();
@@ -55,11 +55,11 @@ class TagRepositoryImplTest {
         Tag tag = tagRepository.findByName("tag1").get();
         assertTrue(tag.getId() == createId);
     }
-
-    @Test
-    @Order(5)
-    void deleteTest() {
-        boolean result = tagRepository.delete(createId);
-        assertTrue(result);
-    }
+//
+//    @Test
+//    @Order(5)
+//    void deleteTest() {
+//        boolean result = tagRepository.delete(createId);
+//        assertTrue(result);
+//    }
 }

@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -35,12 +34,14 @@ public class GiftCertificateTest {
     private TagRepository tagRepository;
     @Mock
     private TagConverter tagConverter;
+    @Mock
+    private GiftCertificateTagRelationRepository relationRepository;
 
     private GiftCertificateService giftCertificateService;
 
     @Before
     public void init() {
-        giftCertificateService = new GiftCertificateServiceImpl(giftCertificateRepository, giftCertificateConverter, tagRepository, tagConverter);
+        giftCertificateService = new GiftCertificateServiceImpl(giftCertificateRepository, giftCertificateConverter, tagRepository, tagConverter, relationRepository);
     }
 
     @Test
@@ -48,14 +49,14 @@ public class GiftCertificateTest {
         GiftCertificate giftCertificate = new GiftCertificate();
         giftCertificate.setName("certificate");
         giftCertificate.setDescription("description");
-        giftCertificate.setDuration(1);
+        giftCertificate.setDuration(1L);
         giftCertificate.setPrice(new BigDecimal(10));
         giftCertificate.setCreationDate(LocalDateTime.now());
         giftCertificate.setLastUpdateDate(LocalDateTime.now());
         GiftCertificateDTO giftCertificateDTO = new GiftCertificateDTO();
         giftCertificateDTO.setName("certificate");
         giftCertificateDTO.setDescription("description");
-        giftCertificateDTO.setDuration(1);
+        giftCertificateDTO.setDuration(1L);
         giftCertificateDTO.setPrice(new BigDecimal(10));
         giftCertificateDTO.setCreationDate(LocalDateTime.now());
         giftCertificateDTO.setLastUpdateDate(LocalDateTime.now());
@@ -71,12 +72,12 @@ public class GiftCertificateTest {
         GiftCertificate giftCertificate = new GiftCertificate();
         giftCertificate.setName("certificate");
         giftCertificate.setDescription("description");
-        giftCertificate.setDuration(1);
+        giftCertificate.setDuration(1L);
         giftCertificate.setPrice(new BigDecimal(10));
         GiftCertificateDTO giftCertificateDTO = new GiftCertificateDTO();
         giftCertificateDTO.setName("certificate");
         giftCertificateDTO.setDescription("description");
-        giftCertificateDTO.setDuration(1);
+        giftCertificateDTO.setDuration(1L);
         giftCertificateDTO.setPrice(new BigDecimal(10));
         giftCertificateDTO.setTags(new ArrayList<>());
         when(giftCertificateRepository.create(giftCertificate)).thenReturn(1L);
@@ -89,12 +90,12 @@ public class GiftCertificateTest {
         GiftCertificate giftCertificate = new GiftCertificate();
         giftCertificate.setName("certificate");
         giftCertificate.setDescription("description");
-        giftCertificate.setDuration(1);
+        giftCertificate.setDuration(1L);
         giftCertificate.setPrice(new BigDecimal(10));
         GiftCertificateDTO giftCertificateDTO = new GiftCertificateDTO();
         giftCertificateDTO.setName("certificate");
         giftCertificateDTO.setDescription("description");
-        giftCertificateDTO.setDuration(1);
+        giftCertificateDTO.setDuration(1L);
         giftCertificateDTO.setPrice(new BigDecimal(10));
         giftCertificateDTO.setTags(new ArrayList<>());
         when(giftCertificateRepository.create(any())).thenThrow(new RuntimeException());
@@ -107,13 +108,13 @@ public class GiftCertificateTest {
         giftCertificate.setId(1L);
         giftCertificate.setName("GiftCertificate1");
         giftCertificate.setDescription("description");
-        giftCertificate.setDuration(1);
+        giftCertificate.setDuration(1L);
         giftCertificate.setPrice(new BigDecimal(10));
         GiftCertificateDTO giftCertificateDTO = new GiftCertificateDTO();
         giftCertificateDTO.setId(1L);
         giftCertificateDTO.setName("GiftCertificate1");
         giftCertificateDTO.setDescription("description");
-        giftCertificateDTO.setDuration(1);
+        giftCertificateDTO.setDuration(1L);
         giftCertificateDTO.setPrice(new BigDecimal(10));
         giftCertificateDTO.setTags(new ArrayList<>());
         when(giftCertificateRepository.findById(giftCertificate.getId())).thenReturn(giftCertificate);
@@ -129,26 +130,13 @@ public class GiftCertificateTest {
         giftCertificateService.findById(id);
     }
 
-    @Test(expected = EntityNotFoundException.class)
-    public void shouldThrowServiceExceptionForDeleteMethodCall() {
-        Long id = 1L;
-        Optional<GiftCertificate> giftCertificate = Optional.of(new GiftCertificate());
-        giftCertificate.get().setId(id);
-        giftCertificate.get().setName("GiftCertificate1");
-        giftCertificate.get().setDescription("description");
-        giftCertificate.get().setDuration(1);
-        giftCertificate.get().setPrice(new BigDecimal(10));
-        when(giftCertificateRepository.findById(id)).thenThrow(new EntityNotFoundException("GiftCertificate not found with id " + id));
-        giftCertificateService.delete(id);
-    }
-
     @Test
     public void shouldTrueForDeleteMethodCall() {
         GiftCertificate giftCertificate = new GiftCertificate();
         giftCertificate.setId(1L);
         giftCertificate.setName("GiftCertificate1");
         giftCertificate.setDescription("description");
-        giftCertificate.setDuration(1);
+        giftCertificate.setDuration(1L);
         giftCertificate.setPrice(new BigDecimal(10));
         when(giftCertificateRepository.findById(giftCertificate.getId())).thenReturn(giftCertificate);
         when(giftCertificateRepository.delete(giftCertificate.getId())).thenReturn(true);

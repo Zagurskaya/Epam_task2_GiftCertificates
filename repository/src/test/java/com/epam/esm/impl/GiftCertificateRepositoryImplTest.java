@@ -28,20 +28,21 @@ class GiftCertificateRepositoryImplTest {
 
     private static Long createId;
 
-    @Test()
+    @Test
     @Order(1)
     void createTest() {
         GiftCertificate giftCertificate = new GiftCertificate();
         giftCertificate.setName("giftCertificate1");
         giftCertificate.setDescription("Description");
         giftCertificate.setPrice(new BigDecimal(10));
-        giftCertificate.setDuration(20);
+        giftCertificate.setDuration(20L);
         giftCertificate.setCreationDate(LocalDateTime.now());
         giftCertificate.setLastUpdateDate(LocalDateTime.now());
 
         this.createId = giftCertificateRepository.create(giftCertificate);
         assertNotEquals(java.util.Optional.ofNullable(createId), 0L);
     }
+
     @Test
     @Order(2)
     void findAllTest() {
@@ -62,7 +63,8 @@ class GiftCertificateRepositoryImplTest {
         GiftCertificate giftCertificate = giftCertificateRepository.findByName("giftCertificate1");
         assertNotNull(giftCertificate);
     }
-    @Test()
+
+    @Test
     @Order(5)
     void updateTest() {
         GiftCertificate giftCertificate = new GiftCertificate();
@@ -70,14 +72,14 @@ class GiftCertificateRepositoryImplTest {
         giftCertificate.setName("giftCertificate2");
         giftCertificate.setDescription("Description2");
         giftCertificate.setPrice(new BigDecimal(40));
-        giftCertificate.setDuration(20);
+        giftCertificate.setDuration(20L);
         giftCertificate.setCreationDate(LocalDateTime.now());
         giftCertificate.setLastUpdateDate(LocalDateTime.now());
         boolean result = giftCertificateRepository.update(giftCertificate);
         assertTrue(result);
     }
 
-    @Test()
+    @Test
     @Order(6)
     void updatePartTest() {
         GiftCertificate giftCertificate = new GiftCertificate();

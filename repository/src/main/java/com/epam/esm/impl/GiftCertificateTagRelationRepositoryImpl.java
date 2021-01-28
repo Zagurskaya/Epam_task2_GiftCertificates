@@ -1,6 +1,6 @@
 package com.epam.esm.impl;
 
-import com.epam.esm.RelationRepository;
+import com.epam.esm.GiftCertificateTagRelationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -12,7 +12,7 @@ import java.sql.PreparedStatement;
 import java.util.List;
 
 @Repository
-public class RelationRepositoryImpl implements RelationRepository {
+public class GiftCertificateTagRelationRepositoryImpl implements GiftCertificateTagRelationRepository {
     private static final String SQL_INSERT_CONNECTION_CERTIFICATE_TAG = "INSERT INTO certificate_tag(certificateId, tagId) VALUES (?, ?)";
     private static final String SQL_DELETE_CONNECTION_CERTIFICATE_TAG = "DELETE FROM certificate_tag WHERE certificateId = ? AND tagId = ?";
     private static final String SQL_SELECT_CERTIFICATE_ID_BY_TAG_ID = "SELECT certificateId FROM certificate_tag WHERE tagId = ?";
@@ -20,7 +20,7 @@ public class RelationRepositoryImpl implements RelationRepository {
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
-    public RelationRepositoryImpl(DataSource dataSource) {
+    public GiftCertificateTagRelationRepositoryImpl(DataSource dataSource) {
         jdbcTemplate = new JdbcTemplate(dataSource);
     }
 

@@ -4,6 +4,7 @@ import com.epam.esm.exception.*;
 import com.epam.esm.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -19,6 +20,12 @@ public class ExceptionsHandler {
     @ExceptionHandler()
     public ResponseEntity<ErrorResponse> alreadyExistError(EntityAlreadyExistException exc) {
         ErrorResponse error = new ErrorResponse(StatusCode.CONFLICT.getLabel(), exc.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler()
+    public ResponseEntity<ErrorResponse> alreadyExistError(HttpMessageNotReadableException exc) {
+        ErrorResponse error = new ErrorResponse(StatusCode.CONFLICT.getLabel(), exc.getCause().getMessage());
         return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }
 

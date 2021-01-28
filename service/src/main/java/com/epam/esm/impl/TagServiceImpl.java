@@ -1,6 +1,6 @@
 package com.epam.esm.impl;
 
-import com.epam.esm.RelationRepository;
+import com.epam.esm.GiftCertificateTagRelationRepository;
 import com.epam.esm.TagRepository;
 import com.epam.esm.TagService;
 import com.epam.esm.converter.TagConverter;
@@ -18,17 +18,17 @@ public class TagServiceImpl implements TagService {
 
     private final TagRepository tagRepository;
     private final TagConverter tagConverter;
-    private final RelationRepository relationRepository;
+    private final GiftCertificateTagRelationRepository giftCertificateTagRelationRepository;
 
 
     @Autowired
     public TagServiceImpl(
             TagRepository tagRepository,
             TagConverter tagConverter,
-            RelationRepository relationRepository) {
+            GiftCertificateTagRelationRepository giftCertificateTagRelationRepository) {
         this.tagRepository = tagRepository;
         this.tagConverter = tagConverter;
-        this.relationRepository = relationRepository;
+        this.giftCertificateTagRelationRepository = giftCertificateTagRelationRepository;
     }
 
     @Override
@@ -53,8 +53,8 @@ public class TagServiceImpl implements TagService {
     @Transactional
     public boolean delete(Long id) {
         boolean result;
-        List<Long> certificateIdList = relationRepository.findListCertificateIdByTagId(id);
-        certificateIdList.forEach(certificateId -> relationRepository.deleteRelationBetweenTagAndGiftCertificate(id, certificateId));
+        List<Long> certificateIdList = giftCertificateTagRelationRepository.findListCertificateIdByTagId(id);
+        certificateIdList.forEach(certificateId -> giftCertificateTagRelationRepository.deleteRelationBetweenTagAndGiftCertificate(id, certificateId));
         result = tagRepository.delete(id);
         return result;
     }
