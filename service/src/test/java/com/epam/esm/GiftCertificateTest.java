@@ -35,7 +35,7 @@ public class GiftCertificateTest {
     @Mock
     private TagConverter tagConverter;
     @Mock
-    private GiftCertificateTagRelationRepository relationRepository;
+    private GiftCertificateTagRepository relationRepository;
 
     private GiftCertificateService giftCertificateService;
 

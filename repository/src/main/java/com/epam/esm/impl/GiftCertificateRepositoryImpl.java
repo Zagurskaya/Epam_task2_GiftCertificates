@@ -36,7 +36,6 @@ class GiftCertificateRepositoryImpl implements GiftCertificateRepository {
             "ON certificate_tag.tagId = tag.id\n" +
             "WHERE  \n";
     private static final String SQL_SELECT_GIFT_CERTIFICATE_BY_ID = "SELECT id, name, description, price, duration, creationDate, lastUpdateDate FROM giftCertificate WHERE id= ? ";
-    private static final String SQL_SELECT_GIFT_CERTIFICATE_BY_NAME = "SELECT id, name, description, price, duration, creationDate, lastUpdateDate FROM giftCertificate WHERE name = ? LIMIT 1";
     private static final String SQL_INSERT_GIFT_CERTIFICATE = "INSERT INTO giftCertificate(name, description, price, duration, creationDate, lastUpdateDate) VALUES (?, ?, ?, ?, ?, ?)";
     private static final String SQL_DELETE_GIFT_CERTIFICATE = "DELETE FROM giftCertificate WHERE id=?";
     private static final String SQL_UPDATE_GIFT_CERTIFICATE = "UPDATE giftCertificate SET name=?, description=?, price=?, duration=?, creationDate=?, lastUpdateDate=? WHERE id= ?";
@@ -167,16 +166,6 @@ class GiftCertificateRepositoryImpl implements GiftCertificateRepository {
     @Override
     public boolean delete(Long id) {
         return 1 == jdbcTemplate.update(SQL_DELETE_GIFT_CERTIFICATE, id);
-    }
-
-    @Override
-    public GiftCertificate findByName(String name) {
-        try {
-            GiftCertificate certificate = jdbcTemplate.queryForObject(SQL_SELECT_GIFT_CERTIFICATE_BY_NAME, new Object[]{name}, new GiftCertificateRowMapper());
-            return certificate;
-        } catch (EmptyResultDataAccessException exception) {
-            throw new EntityNotFoundException("Certificate not found with name " + name);
-        }
     }
 
     @Override

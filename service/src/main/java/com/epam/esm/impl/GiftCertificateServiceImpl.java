@@ -2,7 +2,7 @@ package com.epam.esm.impl;
 
 import com.epam.esm.GiftCertificateRepository;
 import com.epam.esm.GiftCertificateService;
-import com.epam.esm.GiftCertificateTagRelationRepository;
+import com.epam.esm.GiftCertificateTagRepository;
 import com.epam.esm.TagRepository;
 import com.epam.esm.converter.GiftCertificateConverter;
 import com.epam.esm.converter.TagConverter;
@@ -28,7 +28,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     private final GiftCertificateConverter giftCertificateConverter;
     private final TagRepository tagRepository;
     private final TagConverter tagConverter;
-    private final GiftCertificateTagRelationRepository giftCertificateTagRelationRepository;
+    private final GiftCertificateTagRepository giftCertificateTagRepository;
 
     @Autowired
     public GiftCertificateServiceImpl(
@@ -36,12 +36,12 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
             GiftCertificateConverter giftCertificateConverter,
             TagRepository tagRepository,
             TagConverter tagConverter,
-            GiftCertificateTagRelationRepository giftCertificateTagRelationRepository) {
+            GiftCertificateTagRepository giftCertificateTagRepository) {
         this.giftCertificateRepository = giftCertificateRepository;
         this.giftCertificateConverter = giftCertificateConverter;
         this.tagRepository = tagRepository;
         this.tagConverter = tagConverter;
-        this.giftCertificateTagRelationRepository = giftCertificateTagRelationRepository;
+        this.giftCertificateTagRepository = giftCertificateTagRepository;
     }
 
     @Override
@@ -64,7 +64,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         giftCertificate.setLastUpdateDate(LocalDateTime.now());
         Long id = giftCertificateRepository.create(giftCertificate);
         List<TagDTO> tagDTOList = giftCertificateDTO.getTags();
-        tagDTOList.forEach(tagDTO -> createTagAndRelation(tagDTO, id));
+        tagDTOList.forEach(tagDTO -> addTagToCertificate(tagDTO, id));
         return id;
     }
 
@@ -101,7 +101,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     public boolean delete(Long id) {
         boolean result;
         List<Tag> tagList = tagRepository.findListTagsByCertificateId(id);
-        tagList.forEach(tag -> giftCertificateTagRelationRepository.deleteRelationBetweenTagAndGiftCertificate(tag.getId(), id));
+        tagList.forEach(tag -> giftCertificateTagRepository.deleteRelationBetweenTagAndGiftCertificate(tag.getId(), id));
         result = giftCertificateRepository.delete(id);
         return result;
     }
@@ -121,6 +121,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<GiftCertificateDTO> findAllByFilter(Map<String, String> filter) {
         List<GiftCertificate> giftCertificates = giftCertificateRepository.findAllByFilter(filter);
         List<GiftCertificateDTO> giftCertificateDTOS = giftCertificates.stream()
@@ -145,18 +146,18 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         addTagList.removeAll(createTagList);
         addTagList.removeAll(oldTagList.stream().map(tagConverter::toDTO).collect(Collectors.toList()));
 
-        createTagList.forEach(tagDTO -> createTagAndRelation(tagDTO, giftCertificate.getId()));
-        addTagList.forEach(tagDTO -> giftCertificateTagRelationRepository.createRelationBetweenTagAndGiftCertificate(tagDTO.getId(), giftCertificate.getId()));
-        deleteTagList.forEach(tag -> giftCertificateTagRelationRepository.deleteRelationBetweenTagAndGiftCertificate(tag.getId(), giftCertificate.getId()));
+        createTagList.forEach(tagDTO -> addTagToCertificate(tagDTO, giftCertificate.getId()));
+        addTagList.forEach(tagDTO -> giftCertificateTagRepository.createRelationBetweenTagAndGiftCertificate(tagDTO.getId(), giftCertificate.getId()));
+        deleteTagList.forEach(tag -> giftCertificateTagRepository.deleteRelationBetweenTagAndGiftCertificate(tag.getId(), giftCertificate.getId()));
     }
 
-    private void createTagAndRelation(TagDTO tagDTO, Long certificateId) {
+    private void addTagToCertificate(TagDTO tagDTO, Long certificateId) {
         Optional<Tag> tag = tagRepository.findByName(tagDTO.getName());
         if (!tag.isPresent()) {
             Long newTagId = tagRepository.create(tagConverter.toEntity(tagDTO));
-            giftCertificateTagRelationRepository.createRelationBetweenTagAndGiftCertificate(newTagId, certificateId);
+            giftCertificateTagRepository.createRelationBetweenTagAndGiftCertificate(newTagId, certificateId);
         } else {
-            giftCertificateTagRelationRepository.createRelationBetweenTagAndGiftCertificate(tag.get().getId(), certificateId);
+            giftCertificateTagRepository.createRelationBetweenTagAndGiftCertificate(tag.get().getId(), certificateId);
         }
     }
 }

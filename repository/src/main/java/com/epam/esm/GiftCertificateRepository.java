@@ -53,15 +53,6 @@ public interface GiftCertificateRepository {
      */
     boolean delete(Long id);
 
-
-    /**
-     * GiftCertificate search by name
-     *
-     * @param name - giftCertificate name
-     * @return giftCertificate
-     */
-    GiftCertificate findByName(String name);
-
     /**
      * Get a list of GiftCertificates by filter
      *

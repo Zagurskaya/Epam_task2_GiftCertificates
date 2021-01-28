@@ -24,9 +24,9 @@ public class ExceptionsHandler {
     }
 
     @ExceptionHandler()
-    public ResponseEntity<ErrorResponse> alreadyExistError(HttpMessageNotReadableException exc) {
-        ErrorResponse error = new ErrorResponse(StatusCode.CONFLICT.getLabel(), exc.getCause().getMessage());
-        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    public ResponseEntity<ErrorResponse> jsonParserError(HttpMessageNotReadableException exc) {
+        ErrorResponse error = new ErrorResponse(StatusCode.BAD_REQUEST.getLabel(), exc.getCause().getMessage());
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler()

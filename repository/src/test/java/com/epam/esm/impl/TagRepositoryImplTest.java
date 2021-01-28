@@ -2,11 +2,9 @@ package com.epam.esm.impl;
 
 import com.epam.esm.TagRepository;
 import com.epam.esm.config.RepositoryTestConfig;
+import com.epam.esm.exception.EntityNotFoundException;
 import com.epam.esm.model.Tag;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -24,42 +22,45 @@ class TagRepositoryImplTest {
     @Autowired
     private TagRepository tagRepository;
 
-    private static Long createId;
-
     @Test
-    @Order(1)
     void createTest() {
         Tag tag = new Tag();
         tag.setName("tag1");
-        this.createId = tagRepository.create(tag);
-        assertNotEquals(java.util.Optional.ofNullable(createId), 0L);
+        Long id = tagRepository.create(tag);
+        Tag newTag = tagRepository.findById(id);
+        assertNotEquals(java.util.Optional.ofNullable(id), 0L);
+        assertEquals(tag.getName(), newTag.getName());
+
     }
 
     @Test
-    @Order(2)
     void findAllTest() {
         List<Tag> tags = tagRepository.findAll();
         assertNotNull(tags.size());
     }
 
     @Test
-    @Order(3)
     void findByIdTest() {
-        Tag tag = tagRepository.findById(createId);
+        Tag tag = tagRepository.findById(1L);
         assertNotNull(tag);
     }
 
     @Test
-    @Order(4)
     void findByNameTest() {
-        Tag tag = tagRepository.findByName("tag1").get();
-        assertTrue(tag.getId() == createId);
+        String name = "belita";
+        Tag tag = tagRepository.findByName(name).get();
+        assertEquals(tag.getName(), name);
     }
-//
-//    @Test
-//    @Order(5)
-//    void deleteTest() {
-//        boolean result = tagRepository.delete(createId);
-//        assertTrue(result);
-//    }
+
+    @Test
+    void deleteTest() {
+        Tag tag = new Tag();
+        tag.setName("newTag");
+        Long id = tagRepository.create(tag);
+        boolean result = tagRepository.delete(id);
+        assertTrue(result);
+        Assertions.assertThrows(EntityNotFoundException.class, () -> {
+            tagRepository.findById(id);
+        });
+    }
 }

@@ -1,6 +1,6 @@
 package com.epam.esm.impl;
 
-import com.epam.esm.GiftCertificateTagRelationRepository;
+import com.epam.esm.GiftCertificateTagRepository;
 import com.epam.esm.TagRepository;
 import com.epam.esm.TagService;
 import com.epam.esm.converter.TagConverter;
@@ -18,17 +18,17 @@ public class TagServiceImpl implements TagService {
 
     private final TagRepository tagRepository;
     private final TagConverter tagConverter;
-    private final GiftCertificateTagRelationRepository giftCertificateTagRelationRepository;
+    private final GiftCertificateTagRepository giftCertificateTagRepository;
 
 
     @Autowired
     public TagServiceImpl(
             TagRepository tagRepository,
             TagConverter tagConverter,
-            GiftCertificateTagRelationRepository giftCertificateTagRelationRepository) {
+            GiftCertificateTagRepository giftCertificateTagRepository) {
         this.tagRepository = tagRepository;
         this.tagConverter = tagConverter;
-        this.giftCertificateTagRelationRepository = giftCertificateTagRelationRepository;
+        this.giftCertificateTagRepository = giftCertificateTagRepository;
     }
 
     @Override
@@ -38,12 +38,14 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
+    @Transactional
     public Long create(TagDTO tagDTO) {
         Tag tag = tagConverter.toEntity(tagDTO);
         return tagRepository.create(tag);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TagDTO> findAll() {
         List<Tag> tags = tagRepository.findAll();
         return tags.stream().map(tagConverter::toDTO).collect(Collectors.toList());
@@ -53,8 +55,8 @@ public class TagServiceImpl implements TagService {
     @Transactional
     public boolean delete(Long id) {
         boolean result;
-        List<Long> certificateIdList = giftCertificateTagRelationRepository.findListCertificateIdByTagId(id);
-        certificateIdList.forEach(certificateId -> giftCertificateTagRelationRepository.deleteRelationBetweenTagAndGiftCertificate(id, certificateId));
+        List<Long> certificateIdList = giftCertificateTagRepository.findListCertificateIdByTagId(id);
+        certificateIdList.forEach(certificateId -> giftCertificateTagRepository.deleteRelationBetweenTagAndGiftCertificate(id, certificateId));
         result = tagRepository.delete(id);
         return result;
     }

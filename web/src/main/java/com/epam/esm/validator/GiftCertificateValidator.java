@@ -10,14 +10,4 @@ public class GiftCertificateValidator extends FieldValidator {
         validatePrice(giftCertificateDTO.getPrice());
         validateDuration(giftCertificateDTO.getDuration());
     }
-
-    public void validateUpdatePart(GiftCertificateDTO giftCertificateDTO) {
-        if (giftCertificateDTO.getPrice() != null) {
-            validatePrice(giftCertificateDTO.getPrice());
-        }
-
-        if (giftCertificateDTO.getDuration() != null) {
-            validateDuration(giftCertificateDTO.getDuration());
-        }
-    }
 }

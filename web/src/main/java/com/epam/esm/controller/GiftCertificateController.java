@@ -62,7 +62,7 @@ public class GiftCertificateController {
 
     @PatchMapping(value = "/certificates")
     public ResponseEntity updatePartGiftCertificate(@RequestBody GiftCertificateDTO updateGiftCertificate) {
-        giftCertificateValidator.validateUpdatePart(updateGiftCertificate);
+        giftCertificateValidator.validate(updateGiftCertificate);
         giftCertificateService.updatePart(updateGiftCertificate);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
