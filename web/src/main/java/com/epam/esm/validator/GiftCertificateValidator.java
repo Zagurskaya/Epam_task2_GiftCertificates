@@ -8,7 +8,12 @@ import org.springframework.stereotype.Component;
 public class GiftCertificateValidator extends FieldValidator {
 
     public void validate(GiftCertificateDTO giftCertificateDTO) {
-        if (giftCertificateDTO.getPrice() != null && giftCertificateDTO.getDuration() != null) {
+        if (giftCertificateDTO.getPrice() != null &&
+                giftCertificateDTO.getDuration() != null &&
+                giftCertificateDTO.getName() != null &&
+                giftCertificateDTO.getDescription() != null) {
+            validateString(giftCertificateDTO.getName());
+            validateString(giftCertificateDTO.getDescription());
             validatePrice(giftCertificateDTO.getPrice());
             validateDuration(giftCertificateDTO.getDuration());
         } else {
@@ -17,6 +22,12 @@ public class GiftCertificateValidator extends FieldValidator {
     }
 
     public void validateUpdatePath(GiftCertificateDTO giftCertificateDTO) {
+        if (giftCertificateDTO.getName() != null) {
+            validateString(giftCertificateDTO.getName());
+        }
+        if (giftCertificateDTO.getDescription() != null) {
+            validateString(giftCertificateDTO.getDescription());
+        }
         if (giftCertificateDTO.getPrice() != null) {
             validatePrice(giftCertificateDTO.getPrice());
         }

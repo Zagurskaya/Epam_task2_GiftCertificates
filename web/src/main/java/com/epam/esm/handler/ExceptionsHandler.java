@@ -30,7 +30,7 @@ public class ExceptionsHandler {
     }
 
     @ExceptionHandler()
-    public ResponseEntity<ErrorResponse> alreadyExistError(EmptyFieldException exc) {
+    public ResponseEntity<ErrorResponse> emptyFieldError(EmptyFieldException exc) {
         ErrorResponse error = new ErrorResponse(StatusCode.CONFLICT.getLabel(), exc.getMessage());
         return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }

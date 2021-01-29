@@ -1,13 +1,8 @@
 package com.epam.esm.impl;
 
 import com.epam.esm.TagRepository;
-import com.epam.esm.exception.EmptyFieldException;
-import com.epam.esm.exception.EntityAlreadyExistException;
-import com.epam.esm.exception.EntityNotFoundException;
 import com.epam.esm.model.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -51,31 +46,23 @@ public class TagRepositoryImpl implements TagRepository {
 
     @Override
     public Tag findById(Long id) {
-        try {
-            Tag tag = jdbcTemplate.queryForObject(SQL_SELECT_TAG_BY_ID, new Object[]{id}, new TagRowMapper());
-            return tag;
-        } catch (EmptyResultDataAccessException exception) {
-            throw new EntityNotFoundException("Tag not found with id " + id);
-        }
+        Tag tag = jdbcTemplate.queryForObject(SQL_SELECT_TAG_BY_ID, new Object[]{id}, new TagRowMapper());
+        return tag;
+
     }
 
     @Override
     public Long create(Tag tag) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        try {
-            jdbcTemplate.update(
-                    connection -> {
-                        PreparedStatement ps = connection.prepareStatement(SQL_INSERT_TAG, new String[]{"id"});
-                        ps.setString(1, tag.getName());
-                        return ps;
-                    },
-                    keyHolder);
-            return keyHolder.getKey().longValue();
-        } catch (DuplicateKeyException exception) {
-            throw new EntityAlreadyExistException("Tag found with name " + tag.getName());
-        } catch (DataIntegrityViolationException exception) {
-            throw new EmptyFieldException("Tag has empty field ");
-        }
+        jdbcTemplate.update(
+                connection -> {
+                    PreparedStatement ps = connection.prepareStatement(SQL_INSERT_TAG, new String[]{"id"});
+                    ps.setString(1, tag.getName());
+                    return ps;
+                },
+                keyHolder);
+        return keyHolder.getKey().longValue();
+
     }
 
     @Override

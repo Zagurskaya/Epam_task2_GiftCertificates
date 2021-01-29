@@ -1,15 +1,9 @@
 package com.epam.esm.impl;
 
 import com.epam.esm.GiftCertificateRepository;
-import com.epam.esm.exception.EmptyFieldException;
-import com.epam.esm.exception.EntityAlreadyExistException;
-import com.epam.esm.exception.EntityNotFoundException;
 import com.epam.esm.model.GiftCertificate;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.DuplicateKeyException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -56,36 +50,26 @@ class GiftCertificateRepositoryImpl implements GiftCertificateRepository {
 
     @Override
     public GiftCertificate findById(Long id) {
-        try {
-            GiftCertificate certificate = jdbcTemplate.queryForObject(SQL_SELECT_GIFT_CERTIFICATE_BY_ID, new Object[]{id}, new GiftCertificateRowMapper());
-            return certificate;
-        } catch (EmptyResultDataAccessException exception) {
-            throw new EntityNotFoundException("Certificate not found with id " + id);
-        }
+        GiftCertificate certificate = jdbcTemplate.queryForObject(SQL_SELECT_GIFT_CERTIFICATE_BY_ID, new Object[]{id}, new GiftCertificateRowMapper());
+        return certificate;
     }
 
     @Override
     public Long create(GiftCertificate giftCertificate) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        try {
-            jdbcTemplate.update(
-                    connection -> {
-                        PreparedStatement ps = connection.prepareStatement(SQL_INSERT_GIFT_CERTIFICATE, new String[]{"id"});
-                        ps.setString(1, giftCertificate.getName());
-                        ps.setString(2, giftCertificate.getDescription());
-                        ps.setBigDecimal(3, giftCertificate.getPrice());
-                        ps.setLong(4, giftCertificate.getDuration());
-                        ps.setString(5, giftCertificate.getCreationDate().toString());
-                        ps.setString(6, giftCertificate.getLastUpdateDate().toString());
-                        return ps;
-                    },
-                    keyHolder);
-            return keyHolder.getKey().longValue();
-        } catch (DuplicateKeyException exception) {
-            throw new EntityAlreadyExistException("Certificate found with name " + giftCertificate.getName());
-        } catch (DataIntegrityViolationException exception) {
-            throw new EmptyFieldException("Certificate has empty field ");
-        }
+        jdbcTemplate.update(
+                connection -> {
+                    PreparedStatement ps = connection.prepareStatement(SQL_INSERT_GIFT_CERTIFICATE, new String[]{"id"});
+                    ps.setString(1, giftCertificate.getName());
+                    ps.setString(2, giftCertificate.getDescription());
+                    ps.setBigDecimal(3, giftCertificate.getPrice());
+                    ps.setLong(4, giftCertificate.getDuration());
+                    ps.setString(5, giftCertificate.getCreationDate().toString());
+                    ps.setString(6, giftCertificate.getLastUpdateDate().toString());
+                    return ps;
+                },
+                keyHolder);
+        return keyHolder.getKey().longValue();
     }
 
     @Override
@@ -113,54 +97,44 @@ class GiftCertificateRepositoryImpl implements GiftCertificateRepository {
         sqlUpdatePart = sqlUpdatePart + " WHERE id= ?";
 
         String finalSqlUpdatePart = sqlUpdatePart;
-        try {
-            int result = jdbcTemplate.update(
-                    connection -> {
-                        PreparedStatement ps = connection.prepareStatement(finalSqlUpdatePart.toString());
-                        int i = 1;
-                        if (giftCertificate.getName() != null) {
-                            ps.setString(i, giftCertificate.getName());
-                            i++;
-                        }
-                        if (giftCertificate.getDescription() != null) {
-                            ps.setString(i, giftCertificate.getDescription());
-                            i++;
-                        }
-                        if (giftCertificate.getPrice() != null) {
-                            ps.setBigDecimal(i, giftCertificate.getPrice());
-                            i++;
-                        }
-                        if (giftCertificate.getDuration() != null) {
-                            ps.setLong(i, giftCertificate.getDuration());
-                            i++;
-                        }
-                        if (giftCertificate.getCreationDate() != null) {
-                            ps.setString(i, giftCertificate.getCreationDate().toString());
-                            i++;
-                        }
-                        ps.setString(i, giftCertificate.getLastUpdateDate().toString());
-                        ps.setLong(i + 1, giftCertificate.getId());
-                        return ps;
-                    });
-            return 1 == result;
-        } catch (DuplicateKeyException exception) {
-            throw new EntityAlreadyExistException("Certificate found with name " + giftCertificate.getName());
-        } catch (DataIntegrityViolationException exception) {
-            throw new EmptyFieldException("Certificate has empty field ");
-        }
+        int result = jdbcTemplate.update(
+                connection -> {
+                    PreparedStatement ps = connection.prepareStatement(finalSqlUpdatePart.toString());
+                    int i = 1;
+                    if (giftCertificate.getName() != null) {
+                        ps.setString(i, giftCertificate.getName());
+                        i++;
+                    }
+                    if (giftCertificate.getDescription() != null) {
+                        ps.setString(i, giftCertificate.getDescription());
+                        i++;
+                    }
+                    if (giftCertificate.getPrice() != null) {
+                        ps.setBigDecimal(i, giftCertificate.getPrice());
+                        i++;
+                    }
+                    if (giftCertificate.getDuration() != null) {
+                        ps.setLong(i, giftCertificate.getDuration());
+                        i++;
+                    }
+                    if (giftCertificate.getCreationDate() != null) {
+                        ps.setString(i, giftCertificate.getCreationDate().toString());
+                        i++;
+                    }
+                    ps.setString(i, giftCertificate.getLastUpdateDate().toString());
+                    ps.setLong(i + 1, giftCertificate.getId());
+                    return ps;
+                });
+        return 1 == result;
+
     }
 
     @Override
     public boolean update(GiftCertificate giftCertificate) {
-        try {
-            return jdbcTemplate.update(SQL_UPDATE_GIFT_CERTIFICATE,
-                    giftCertificate.getName(), giftCertificate.getDescription(), giftCertificate.getPrice(), giftCertificate.getDuration(),
-                    giftCertificate.getCreationDate().toString(), giftCertificate.getLastUpdateDate().toString(), giftCertificate.getId()) > 0;
-        } catch (DuplicateKeyException exception) {
-            throw new EntityAlreadyExistException("Certificate found with name " + giftCertificate.getName());
-        } catch (DataIntegrityViolationException exception) {
-            throw new EmptyFieldException("Certificate has empty field ");
-        }
+        return jdbcTemplate.update(SQL_UPDATE_GIFT_CERTIFICATE,
+                giftCertificate.getName(), giftCertificate.getDescription(), giftCertificate.getPrice(), giftCertificate.getDuration(),
+                giftCertificate.getCreationDate().toString(), giftCertificate.getLastUpdateDate().toString(), giftCertificate.getId()) > 0;
+
     }
 
     @Override

@@ -2,13 +2,13 @@ package com.epam.esm.impl;
 
 import com.epam.esm.GiftCertificateRepository;
 import com.epam.esm.config.RepositoryTestConfig;
-import com.epam.esm.exception.EntityAlreadyExistException;
-import com.epam.esm.exception.EntityNotFoundException;
 import com.epam.esm.model.GiftCertificate;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -60,7 +60,7 @@ class GiftCertificateRepositoryImplTest {
         giftCertificate.setLastUpdateDate(LocalDateTime.now());
 
         giftCertificateRepository.create(giftCertificate);
-        Assertions.assertThrows(EntityAlreadyExistException.class, () -> {
+        Assertions.assertThrows(DuplicateKeyException.class, () -> {
             giftCertificateRepository.create(giftCertificate);
         });
     }
@@ -69,6 +69,10 @@ class GiftCertificateRepositoryImplTest {
     void findByIdTest() {
         GiftCertificate giftCertificate = giftCertificateRepository.findById(1L);
         assertNotNull(giftCertificate);
+        assertEquals("comfort", giftCertificate.getName());
+        assertEquals("comfort 30 day", giftCertificate.getDescription());
+        assertEquals(new BigDecimal(100), giftCertificate.getPrice());
+        assertEquals(java.util.Optional.of(30L), giftCertificate.getDuration());
     }
 
     @Test
@@ -114,7 +118,7 @@ class GiftCertificateRepositoryImplTest {
 
         Long id = giftCertificateRepository.create(giftCertificate);
         giftCertificateRepository.delete(id);
-        Assertions.assertThrows(EntityNotFoundException.class, () -> {
+        Assertions.assertThrows(EmptyResultDataAccessException.class, () -> {
             giftCertificateRepository.findById(id);
         });
     }

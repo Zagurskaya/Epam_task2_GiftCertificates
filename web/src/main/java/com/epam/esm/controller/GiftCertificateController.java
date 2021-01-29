@@ -2,7 +2,7 @@ package com.epam.esm.controller;
 
 import com.epam.esm.GiftCertificateService;
 import com.epam.esm.mapper.FilterMapper;
-import com.epam.esm.request.FilterRequest;
+import com.epam.esm.request.FilterParams;
 import com.epam.esm.model.GiftCertificateDTO;
 import com.epam.esm.response.IdResponse;
 import com.epam.esm.validator.GiftCertificateValidator;
@@ -27,9 +27,9 @@ public class GiftCertificateController {
     }
 
     @GetMapping(value = "/certificates")
-    public ResponseEntity<List<GiftCertificateDTO>> getGiftCertificates(FilterRequest filterRequest) {
+    public ResponseEntity<List<GiftCertificateDTO>> getGiftCertificates(FilterParams filterParams) {
         List<GiftCertificateDTO> certificateDTOS = null;
-        Map<String, String> filterMap = FilterMapper.toMap(filterRequest);
+        Map<String, String> filterMap = FilterMapper.toMap(filterParams);
         if (filterMap.isEmpty()) {
             certificateDTOS = giftCertificateService.findAll();
         } else {

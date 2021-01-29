@@ -6,6 +6,12 @@ import java.math.BigDecimal;
 
 public class FieldValidator {
 
+    public void validateString(String string) {
+        if (string.isEmpty()) {
+            throw new ValidationException("incorrect value" + string);
+        }
+    }
+
     public void validatePrice(BigDecimal price) {
         if (price.compareTo(BigDecimal.ZERO) <= 0) {
             throw new ValidationException("incorrect value price");
